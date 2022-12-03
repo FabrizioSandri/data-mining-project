@@ -9,7 +9,7 @@ num_users = 1000 # how many users in the random utility matrix
 num_queries = 1000 # how many queries in the random utility matrix
 utility_sparsity = 0.3 # sparsity of the random utility matrix(in percentage)
 
-simhash_hyperplanes = 50 # number of hyperplanes for SimHash
+simhash_hyperplanes = 100 # number of hyperplanes for SimHash
 
 r = 6 # rows per band in LSH, the number of bands is equal to b=k/r
 
@@ -58,19 +58,20 @@ print("[Running Time] Time to rescale the utility: " + str(int(time.time()) - st
 
 
 ################################# SIM HASHING ##################################
-random_hyperplanes = np.random.uniform(low=-1, high=1, size=(simhash_hyperplanes, num_users)) 
+# random_hyperplanes = np.random.uniform(low=-1, high=1, size=(simhash_hyperplanes, num_users)) # plane's orthogonal vector with components that are reals from -1 to 1
+random_hyperplanes = np.random.choice([-0.9,0,0.9], size=(simhash_hyperplanes, num_users)) # plane's orthogonal vector with components -0.9,0,0.9
 
-### plot the vector defining each plane
-def plot_planes(planes):
-  for hyper in planes:
-    x_plane = [0, hyper[0]*100]
-    y_plane = [0, hyper[1]*100]
-    plt.plot(x_plane, y_plane, c="r")
+# ## plot the vector defining each plane
+# def plot_planes(planes):
+#   for hyper in planes:
+#     x_plane = [0, hyper[0]*100]
+#     y_plane = [0, hyper[1]*100]
+#     plt.plot(x_plane, y_plane, c="r")
 
-plt.scatter(utility[0],utility[1])
-plot_planes(random_hyperplanes)
-plt.show()
-### end plot
+# plt.scatter(utility[0],utility[1])
+# plot_planes(random_hyperplanes)
+# plt.show()
+# ## end plot
 
 start_time = int(time.time())
 

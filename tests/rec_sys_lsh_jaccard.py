@@ -20,7 +20,7 @@ def jaccard(x,y):
   union = 0
   intersection = 0
   for x_elem, y_elem in zip(x,y):
-    if x_elem != -1 or y_elem != -1:
+    if x_elem != 0 or y_elem != 0:
       union += 1
       if (x_elem == y_elem ):
         intersection += 1

@@ -227,6 +227,7 @@ similar items:
 4. Using LSH with simHash and the Cosine similarity
 Arguments:
   utility: the utility matrix
+  algorithms: specify which algorithms to run either "all", "jaccard", "cosine"
 Returns:
   A tuple of four elements where:
   1. the first element is the time(in seconds) needed to find similar items 
@@ -240,76 +241,86 @@ Returns:
   4. the fourth element is the time(in seconds) needed to find similar items 
     using simHash with LSH for the Cosine similarity
 '''
-def measure_time_performance(utility):
+def measure_time_performance(utility, algorithms="all"):
   rows, cols = utility.shape
 
+  time_baseline_jaccard = None
+  time_baseline_cosine = None
+  time_minhash = None
+  time_simhash = None
+
+  
   # 1. find similar items without LSH(Jacccard similarity)
-  start_time = int(time.time())
-  most_similar = [] # list containing in the ith position the query that is most 
-                    # similar to query i
+  if (algorithms == "all" or algorithms=="jaccard"):
+    start_time = int(time.time())
+    most_similar = [] # list containing in the ith position the query that is  
+                      # most similar to query i
 
-  for i in range(cols):
-    similarities = []
-    for j in range(cols):
-      similarities.append(sim.jaccard_threshold(utility[:,i], utility[:,j], 50))
+    for i in range(cols):
+      similarities = []
+      for j in range(cols):
+        similarities.append(sim.jaccard_threshold(utility[:,i], utility[:,j], 50))
 
-    most_similar_query = -1 if len(similarities)==0 else np.argmax(similarities)
-    most_similar.append(most_similar_query)
+      most_similar_query = -1 if len(similarities)==0 else np.argmax(similarities)
+      most_similar.append(most_similar_query)
 
-  end_time = int(time.time()) - start_time
-  time_baseline_jaccard = end_time
+    end_time = int(time.time()) - start_time
+    time_baseline_jaccard = end_time
 
   # 2. find similar items without LSH(Cosine similarity)
-  start_time = int(time.time())
-  most_similar = [] # list containing in the ith position the query that is most 
-                    # similar to query i
+  if (algorithms == "all" or algorithms=="cosine"):
+    start_time = int(time.time())
+    most_similar = [] # list containing in the ith position the query that is 
+                      # most similar to query i
 
-  for i in range(cols):
-    similarities = []
-    for j in range(cols):
-      similarities.append(sim.cosine_similarity(utility[:,i], utility[:,j]))
+    for i in range(cols):
+      similarities = []
+      for j in range(cols):
+        similarities.append(sim.cosine_similarity(utility[:,i], utility[:,j]))
 
-    most_similar_query = -1 if len(similarities)==0 else np.argmax(similarities)
-    most_similar.append(most_similar_query)
+      most_similar_query = -1 if len(similarities)==0 else np.argmax(similarities)
+      most_similar.append(most_similar_query)
 
-  end_time = int(time.time()) - start_time
-  time_baseline_cosine = end_time
+    end_time = int(time.time()) - start_time
+    time_baseline_cosine = end_time
 
   # 3. find similar items with LSH: minHash
-  start_time = int(time.time())
-  most_similar = []
+  if (algorithms == "all" or algorithms=="jaccard"):
+    start_time = int(time.time())
+    most_similar = []
 
-  signature_matrix = lsh.minHash(utility_matrix=utility, k=200, T=50)
-  similar_items = lsh.lsh(signature_matrix, rows_per_band=6)
+    signature_matrix = lsh.minHash(utility_matrix=utility, k=200, T=50)
+    similar_items = lsh.lsh(signature_matrix, rows_per_band=6)
 
-  for i in range(cols):
-    similarities = []
-    for j in range(len(similar_items[i])):
-      similarities.append(sim.jaccard_threshold(utility[:,i], utility[:,list(similar_items[i])[j]], 50))
+    for i in range(cols):
+      similarities = []
+      for j in range(len(similar_items[i])):
+        similarities.append(sim.jaccard_threshold(utility[:,i], utility[:,list(similar_items[i])[j]], 50))
 
-    most_similar_query =  -1 if len(similarities)==0 else list(similar_items[i])[np.argmax(similarities)]
-    most_similar.append(most_similar_query)
+      most_similar_query =  -1 if len(similarities)==0 else list(similar_items[i])[np.argmax(similarities)]
+      most_similar.append(most_similar_query)
 
-  end_time = int(time.time()) - start_time
-  time_minhash = end_time
+    end_time = int(time.time()) - start_time
+    time_minhash = end_time
 
   # 4. find similar items with LSH: simHash
-  start_time = int(time.time())
-  most_similar = []
+  if (algorithms == "all" or algorithms=="cosine"):
+    start_time = int(time.time())
+    most_similar = []
 
-  signature_matrix = lsh.simHash(utility_matrix=utility, hyperplanes=400)
-  similar_items = lsh.lsh(signature_matrix, rows_per_band=15)
+    signature_matrix = lsh.simHash(utility_matrix=utility, hyperplanes=400)
+    similar_items = lsh.lsh(signature_matrix, rows_per_band=15)
 
-  for i in range(cols):
-    similarities = []
-    for j in range(len(similar_items[i])):
-      similarities.append(sim.cosine_similarity(utility[:,i], utility[:,list(similar_items[i])[j]]))
+    for i in range(cols):
+      similarities = []
+      for j in range(len(similar_items[i])):
+        similarities.append(sim.cosine_similarity(utility[:,i], utility[:,list(similar_items[i])[j]]))
 
-    most_similar_query =  -1 if len(similarities)==0 else list(similar_items[i])[np.argmax(similarities)]
-    most_similar.append(most_similar_query)
+      most_similar_query =  -1 if len(similarities)==0 else list(similar_items[i])[np.argmax(similarities)]
+      most_similar.append(most_similar_query)
 
-  end_time = int(time.time()) - start_time
-  time_simhash = end_time
+    end_time = int(time.time()) - start_time
+    time_simhash = end_time
 
   return time_baseline_jaccard, time_baseline_cosine, time_minhash, time_simhash
 
@@ -325,6 +336,7 @@ Arguments:
     the utility matrix
   num_queries: the number of queries to use for the test. Default: number of 
     columns of the utility matrix
+  algorithms: specify which algorithms to run either "all", "jaccard", "cosine"
 Returns:
   The function returns several performance measures in a tuple of four elements:
   1. the first element is a list of times(in seconds) needed to find similar 
@@ -338,7 +350,7 @@ Returns:
   4. the fourth element is a list of times(in seconds) needed to find similar 
     items using simHash with LSH for the Cosine similarity
 '''
-def measure_time_increase(utility, num_users=[], num_queries=[]):
+def measure_time_increase(utility, num_users=[], num_queries=[], algorithms="all"):
   rows, cols = utility.shape
   num_users = num_users if len(num_users)>0 else [rows]
   num_queries = num_queries if len(num_queries)>0 else [cols]
@@ -361,7 +373,7 @@ def measure_time_increase(utility, num_users=[], num_queries=[]):
     for queries in num_queries:
       print("Measuring time performance with a utility matrix of size %d x %d (users x queries)" % (users, queries))
       # run the time performance measure on the sliced version of the utility matrix
-      x, y, z, w = measure_time_performance(utility[:users-1,:queries-1]) 
+      x, y, z, w = measure_time_performance(utility[:users-1,:queries-1], algorithms) 
 
       time_baseline_jaccard.append(x)
       time_baseline_cosine.append(y)

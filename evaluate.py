@@ -123,7 +123,7 @@ Returns:
   2. the time to run LSH (time_to_run)
   3. the average number of candidate pairs found for each item (avg_candidates)
 '''
-def plot__curve(utility, similarity):
+def plot_rows_curve(utility, similarity):
   correctly_estimated = []
   time_to_run = []
   avg_candidates = []

@@ -3,6 +3,7 @@ import similarity_measures as sim
 import lsh
 import evaluate as ev
 import time
+import matplotlib.pyplot as plt
 
 '''
 Finds the most similar query to the one specified as input "q", both in the 
@@ -81,7 +82,7 @@ def plot_bands_curve(utility, similarity):
     start_time = int(time.time())
 
     # run simHash
-    signature_matrix = lsh.simHash(utility_matrix=utility, hyperplanes=400)
+    signature_matrix = lsh.simHash(utility_matrix=utility, hyperplanes=200)
     similar_items = lsh.lsh(signature_matrix, rows_per_band=r)
 
     end_time = int(time.time()) - start_time
@@ -308,7 +309,7 @@ def measure_time_performance(utility, algorithms="all"):
     start_time = int(time.time())
     most_similar = []
 
-    signature_matrix = lsh.simHash(utility_matrix=utility, hyperplanes=400)
+    signature_matrix = lsh.simHash(utility_matrix=utility, hyperplanes=200)
     similar_items = lsh.lsh(signature_matrix, rows_per_band=15)
 
     for i in range(cols):
@@ -381,3 +382,95 @@ def measure_time_increase(utility, num_users=[], num_queries=[], algorithms="all
       time_simhash.append(w)
 
   return time_baseline_jaccard, time_baseline_cosine, time_minhash, time_simhash
+
+'''
+This function creates 4 subplots: 
+1. the first shows the time performance of LSH with minHash compared to the 
+  baseline solution with the Jaccard similarity, while increasing the size of 
+  the utility matrix in term of number of queries.
+2. the second shows the time performance of LSH with minHash compared to the 
+  baseline solution with the Jaccard similarity, while increasing the size of 
+  the utility matrix in term of number of users.
+3. the first shows the time performance of LSH with simHash compared to the 
+  baseline solution with the Cosine similarity, while increasing the size of 
+  the utility matrix in term of number of queries.
+4. the first shows the time performance of LSH with simHash compared to the 
+  baseline solution with the Cosine similarity, while increasing the size of 
+  the utility matrix in term of number of users.
+
+Arguments:
+  utility: the utility matrix
+  num_users_j: a list containing the sizes of the utility matrix in terms of 
+    users to be tested. This parameter is used for the minHash test.
+  num_users_c: a list containing the sizes of the utility matrix in terms of 
+    users to be tested. This parameter is used for the simHash test.
+  num_queries_j: a list containing the sizes of the utility matrix in terms of 
+    queries to be tested. This parameter is used for the minHash test.
+  num_queries_c: a list containing the sizes of the utility matrix in terms of 
+    queries to be tested. This parameter is used for the simHash test.
+Returns:
+  Plot the four aforementioned subplots
+'''
+def plot_time_increase(utility, num_users_j, num_users_c, num_queries_j, num_queries_c):
+
+  time_jaccard_q, _, time_minhash_q, _ = ev.measure_time_increase(utility, num_queries=num_queries_j, algorithms="jaccard")
+  time_jaccard_u, _, time_minhash_u, _ = ev.measure_time_increase(utility, num_users=num_users_j, num_queries=[1000], algorithms="jaccard")
+
+  _, time_cosine_q, _, time_simhash_q = ev.measure_time_increase(utility, num_queries=num_queries_c, algorithms="cosine")
+  _, time_cosine_u, _, time_simhash_u = ev.measure_time_increase(utility, num_users=num_users_c, algorithms="cosine")
+
+  fig,ax = plt.subplots(2,2)
+  ax = ax.flatten()
+
+  ax[0].plot(num_queries_j, time_jaccard_q, label="Baseline solution Jaccard")
+  ax[0].plot(num_queries_j, time_minhash_q, label="LSH solution Minhash")
+  ax[0].set_xlabel("Number of queries (utility matrix columns)")
+  ax[0].set_ylabel("Time (seconds)")
+  ax[0].legend()
+  ax[0].grid()
+  ax[0].title.set_text("LSH for Jaccard - increasing the number of queries")
+
+  ax[2].plot(num_queries_c, time_cosine_q, label="Baseline solution Cosine")
+  ax[2].plot(num_queries_c, time_simhash_q, label="LSH solution Simhash")
+  ax[2].set_xlabel("Number of queries (utility matrix columns)")
+  ax[2].set_ylabel("Time (seconds)")
+  ax[2].legend()
+  ax[2].grid()
+  ax[2].title.set_text("LSH for Cosine - increasing the number of queries")
+
+  ax[1].plot(num_users_j, time_jaccard_u, label="Baseline solution Jaccard")
+  ax[1].plot(num_users_j, time_minhash_u, label="LSH solution Minhash")
+  ax[1].set_xlabel("Number of users (utility matrix rows)")
+  ax[1].set_ylabel("Time (seconds)")
+  ax[1].legend()
+  ax[1].grid()
+  ax[1].title.set_text("LSH for Jaccard - increasing the number of users")
+
+  ax[3].plot(num_users_c, time_cosine_u, label="Baseline solution Cosine")
+  ax[3].plot(num_users_c, time_simhash_u, label="LSH solution Simhash")
+  ax[3].set_xlabel("Number of users (utility matrix rows)")
+  ax[3].set_ylabel("Time (seconds)")
+  ax[3].legend()
+  ax[3].grid()
+  ax[3].title.set_text("LSH for Cosine - increasing the number of users")
+
+  plt.show()
+
+
+'''
+This function allows to measure the average error between the predicted ratings 
+and the real ones 
+
+Arguments:
+  original_utility: the original utility matrix without sparsity
+  predicted_utility: the utility matrix predicted using the recommendation 
+    system
+  sparsity_mask: the sparsity mask used to add sparsity to the original utility
+Returns:
+  This function returns the average difference between the real values values of 
+  the utility matrix and the predicted ones: this is a value between 0 and 99
+'''
+def evaluate_prediction(original_utility, predicted_utility, sparsity_mask):
+  new_mask = (predicted_utility!=0 & sparsity_mask) # remove from the mask the cells that were not predicted(no similar items found)
+  predicted_diff = np.abs(original_utility[new_mask] - predicted_utility[new_mask])
+  return predicted_diff

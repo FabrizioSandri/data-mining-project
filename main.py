@@ -8,8 +8,8 @@ import time
 import matplotlib.pyplot as plt
 
 #### VARIABLES
-# utility_df = pd.read_csv("tests/Dataset/dataFolder/utilityMatrixDataset.csv")
-utility_df = pd.read_csv("utility.csv", header=None, index_col=False)
+utility_df = pd.read_csv("tests/Dataset/dataFolder/utilityMatrixDataset.csv")
+# utility_df = pd.read_csv("utility.csv", header=None, index_col=False)
 original_utility = utility_df.to_numpy()
 
 # fill some random values of the utility with 0. based on the sparsity amount

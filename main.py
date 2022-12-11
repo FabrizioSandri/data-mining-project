@@ -103,3 +103,9 @@ pd.DataFrame(utility).to_csv("predicted.csv", header=False, index=False)
 # measure the average difference between the predicted ratings and the originals
 avg = ev.evaluate_prediction(original_utility, utility, mask)
 print("The predicted ratings differ from the real ones by an average of %f" % np.mean(avg))
+
+
+# compare the results with random assignment of the ratings
+fake_utility = np.random.randint(1,101, utility.shape) # utility with random values
+avg_fake = ev.evaluate_prediction(fake_utility, utility, mask)
+print("The predicted ratings differ from the randomly generated predictions by an average of %f" % np.mean(avg_fake))

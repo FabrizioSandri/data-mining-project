@@ -181,6 +181,10 @@ def plot_combined_curve(utility, similarity):
   for h in np.arange(50, 500, 50):
     for r in range(5,20):
 
+
+      print("Test with number of hyperplanes=%d" % h)
+      print("Test with rows_per_band=%d" % r)
+      
       start_time = int(time.time())
 
       # run simHash
@@ -196,8 +200,6 @@ def plot_combined_curve(utility, similarity):
         real.append(res[0])
         estimated.append(res[1])
 
-      print("Test with number of hyperplanes=%d" % h)
-      print("Test with rows_per_band=%d" % r)
 
       real = np.asarray(real)
       estimated = np.asarray(estimated)

@@ -32,9 +32,9 @@ def gradeFunction(userType, x):
                 res = int(k-x**1.05)
         case 1:
             if(x == 0):
-                res = random.randint(0,10)
+                res = random.randint(1,10)
             else:
-                k = random.randint(0,10)
+                k = random.randint(1,10)
                 res = int(k+x**1.05)
         case 2:
             if(x == 0):
@@ -53,16 +53,16 @@ def gradeFunction(userType, x):
         case 7:            
             res = abs(int(100*math.sin(x+ math.log(x+math.exp(math.sin(x))))))
         case _:
-            res = random.randint(0,100)
+            res = int(random.randint(1,100)*random.randint(1,100)/random.randint(1,100))
     if(res>100):
         res = random.randint(95,100)
-    elif(res<0):
-        res = random.randint(0,5)
+    elif(res<1):
+        res = random.randint(1,5)
     return res
 
 def getUserGrades(queriesResult, userId):
-    user = userId.replace("usr", "")
-    userType = int(user) % 9
+    #user = userId.replace("usr", "")
+    userType = random.randint(0,8)#randomize the user type
     userArray = []
     userArray.append(userId)
     for i in range(len(queriesResult)):

@@ -8,9 +8,10 @@ import time
 import matplotlib.pyplot as plt
 
 #### VARIABLES
-utility_df = pd.read_csv("tests/Dataset/dataFolder/utilityMatrixDataset.csv")
-# utility_df = pd.read_csv("utility.csv", header=None, index_col=False)
+utility_df = pd.read_csv("tests/Dataset/dataFolder/UtilityDataset.csv", index_col=0)
 original_utility = utility_df.to_numpy()
+
+K = 5 # predict the rating with the rating of the K most similar queries
 
 # fill some random values of the utility with 0. based on the sparsity amount
 utility_sparsity = 0.3
@@ -25,7 +26,7 @@ utility[mask] = 0
 
 ### LSH with minHash
 signature_matrix = lsh.minHash(utility_matrix=utility, k=400, T=50)
-similar_items = lsh.lsh(signature_matrix, rows_per_band=10)
+similar_items = lsh.lsh(signature_matrix, rows_per_band=7)
 
 
 ### LSH with simHash
@@ -88,17 +89,21 @@ for query in range(utility.shape[1]):
         else:
           prefs.append(sim.cosine_similarity(utility[:,query], utility[:,i]))
       
-      most_similar_query = None
+      most_similar_queries = None
       if len(similar_items[query]) > 0: # at least one similar query found
-        most_similar_query_i = np.argmax(prefs)
-        most_similar_query = list(similar_items[query])[most_similar_query_i]
+        most_similar_query_i = np.argsort(prefs)[min(-K,len(prefs)):]
+        most_similar_queries =  [list(similar_items[query])[i] for i in most_similar_query_i]
 
-      if most_similar_query:
-        utility[user, query] = utility[user, most_similar_query]
+      if most_similar_queries:
+        similar_ratings = [utility[user,j] for j in most_similar_queries]
+        utility[user, query] = np.mean(similar_ratings)
 
 
 # dump the predicted utility matrix to file
-pd.DataFrame(utility).to_csv("predicted.csv", header=False, index=False)
+predicted_utility_df = pd.DataFrame(utility)
+predicted_utility_df.columns = utility_df.keys()
+predicted_utility_df.index = utility_df.index
+predicted_utility_df.to_csv("predicted.csv")
 
 # measure the average difference between the predicted ratings and the originals
 avg = ev.evaluate_prediction(original_utility, utility, mask)

@@ -8,8 +8,13 @@ import time
 import matplotlib.pyplot as plt
 
 #### VARIABLES
-utility_df = pd.read_csv("tests/Dataset/dataFolder/utilityMatrixDataset.csv")
+utility_df = pd.read_csv("tests/Dataset/dataFolder/UtilityDataset.csv")
 # utility_df = pd.read_csv("utility.csv", header=None, index_col=False)
+
+#tranform utility dataset from pandas dataframe to numpy matrix, 
+#user iDs strings tranformed in their integer part
+utility_df = utility_df.replace('usr', '', regex=True)
+utility_df['Usr'] = utility_df['Usr'].astype(int)
 original_utility = utility_df.to_numpy()
 
 # fill some random values of the utility with 0. based on the sparsity amount

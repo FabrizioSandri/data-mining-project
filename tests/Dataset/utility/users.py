@@ -8,6 +8,7 @@ from .datasetUtility import csvSaver
 from .queries import queryResults, generateQueryDataset
 
 def userGenerator(nUser):
+    #this function generate the dataset composed by the user iD
     #nUser = number of user to generate
     userArray = []
     for i in range(1, nUser):
@@ -23,6 +24,17 @@ def gradeFunction(userType, x):
     #this function given a user type decide which
     #would be the grade of a given quer result, 
     # x in particular is the query result
+    #each user have samo randomization to try to avoid identical users
+    #
+    #currently there are 8 types of users:
+    #-> low # results good then exponential decade of the grade as the # increase
+    #-> high # results good then exponential decade of the grade as the # decrease
+    #-> middle range grade user with an exponentiale decade with high variance due to high randomization
+    #-> math.log(x+math.exp((x+1)/(k*x))) function user, k gives some randomization
+    #-> math.log(x+math.exp(k*math.sin(x))) function user, k gives some randomization
+    #-> cosine grading user
+    #-> tan grading user
+    #-> sin grading user
     match userType:
         case 0:
             if(x == 0):
@@ -67,6 +79,9 @@ def gradeFunction(userType, x):
 
 def getUserGrades(queriesResult, userId):
     #user = userId.replace("usr", "")
+    #this function give randomly to each user a user type
+    #so then can select the type of function to use
+    #and give a grade to each query
     userType = random.randint(0,8)#randomize the user type
     userArray = []
     userArray.append(userId)
@@ -76,6 +91,11 @@ def getUserGrades(queriesResult, userId):
 
 def utilityMatrixGenerator(userArray, queryDataset, inputdataset):
     #function which generate utility matrix
+    #based on the query matrix and on the getUserGrades
+    #return the final utilityMatrix
+    #the first column have the user iD
+    #the other columns each represent a query and have as values the grade
+    #that each user gave to the query
     q_rows, q_columns = queryDataset.shape
     utilityMatrix = []
     query_answers = []

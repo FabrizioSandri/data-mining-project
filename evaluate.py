@@ -1,7 +1,9 @@
-import numpy as np
 import similarity_measures as sim
-import lsh
+import recommendation as rec
 import evaluate as ev
+import lsh
+
+import numpy as np
 import time
 import matplotlib.pyplot as plt
 
@@ -465,14 +467,48 @@ and the real ones
 
 Arguments:
   original_utility: the original utility matrix without sparsity
-  predicted_utility: the utility matrix predicted using the recommendation 
-    system
-  sparsity_mask: the sparsity mask used to add sparsity to the original utility
+  test_size: fraction of non-zero values to use as test set(percentage)
+  
 Returns:
   This function returns the average difference between the real values values of 
   the utility matrix and the predicted ones: this is a value between 0 and 99
 '''
-def evaluate_prediction(original_utility, predicted_utility, sparsity_mask):
-  new_mask = (predicted_utility!=0 & sparsity_mask) # remove from the mask the cells that were not predicted(no similar items found)
-  predicted_diff = np.abs(original_utility[new_mask] - predicted_utility[new_mask])
-  return predicted_diff
+def evaluate_prediction(original_utility, test_size, similarity):
+  utility = original_utility.copy()
+  
+  test_mask = np.random.choice([True, False], original_utility.shape , p=[test_size,1-test_size])
+  test_mask = test_mask & (original_utility!=0)
+  utility[test_mask] = 0
+  print(np.sum(test_mask))
+
+  if similarity == "cosine":
+    # LSH with simHash
+    signature_matrix = lsh.simHash(utility_matrix=utility, hyperplanes=400)
+    similar_items = lsh.lsh(signature_matrix, rows_per_band=15)
+  else: 
+    # LSH with minHash
+    signature_matrix = lsh.minHash(utility_matrix=utility, k=400, T=50)
+    similar_items = lsh.lsh(signature_matrix, rows_per_band=7)
+
+
+  # compute the missing ratings
+  predicted_utility = rec.predictAsTopKAverage(utility, similar_items, K=3, similarity=similarity)
+
+  return(np.mean(np.abs( original_utility[test_mask]-predicted_utility[test_mask] )))
+
+
+
+def evaluate_prediction_random(original_utility, test_size):
+  utility = original_utility.copy()
+  
+  test_mask = np.random.choice([True, False], original_utility.shape , p=[test_size,1-test_size])
+  test_mask = test_mask & (original_utility!=0)
+  utility[test_mask] = 0
+  print(np.sum(test_mask))
+
+  
+  predicted_utility = np.random.randint(1,101, utility.shape) # utility with random values
+
+
+  return(np.mean(np.abs( original_utility[test_mask]-predicted_utility[test_mask] )))
+

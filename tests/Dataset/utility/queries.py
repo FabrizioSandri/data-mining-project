@@ -16,7 +16,7 @@ def generateQueryDataset(inputDataset, queryMatrixRows, percentage_of_max_condit
         for i in range(inputColumns):
             query.append("")
         nConditions = random.randint(1, int(percentage_of_max_conditions*inputColumns))
-        tableRow = random.randint(1, inputRows)
+        tableRow = random.randint(1, inputRows-1)
         for j in range(nConditions):
             col = random.randint(1, inputColumns-1)
             query[col] = inputDataset.iloc[tableRow][col]

@@ -26,15 +26,15 @@ def gradeFunction(userType, x):
     match userType:
         case 0:
             if(x == 0):
-                res = random.randint(90,100)
+                res = random.randint(80,100)
             else:
-                k = random.randint(70,99)
+                k = random.randint(60,99)
                 res = int(k-x**1.05)
         case 1:
             if(x == 0):
-                res = random.randint(1,10)
+                res = random.randint(1,20)
             else:
-                k = random.randint(1,10)
+                k = random.randint(1,20)
                 res = int(k+x**1.05)
         case 2:
             if(x == 0):
@@ -43,15 +43,20 @@ def gradeFunction(userType, x):
                 k = random.randint(30,70)
                 res = int(k-x**1.05)
         case 3:
-            res = int(math.log(x+math.exp((x+1)/x)))
-        case 4:            
-            res = abs(int(math.log(x+math.exp(math.sin(x)))))
-        case 5:            
-            res = abs(int(100*math.cos(x)))
-        case 6:            
-            res = abs(int(100*math.tan(x)))
-        case 7:            
-            res = abs(int(100*math.sin(x+ math.log(x+math.exp(math.sin(x))))))
+            k = random.randint(50,100)  
+            res = int(math.log(x+math.exp((x+1)/(k*x))))
+        case 4:    
+            k = random.randint(50,100)          
+            res = abs(int(math.log(x+math.exp(k*math.sin(x)))))
+        case 5:    
+            k = random.randint(50,100)        
+            res = abs(int(k*math.cos(x)))
+        case 6:   
+            k = random.randint(50,100)         
+            res = abs(int(k*math.tan(x)))
+        case 7:   
+            k = random.randint(50,100)         
+            res = abs(int(k*math.sin(x+ math.log(x+math.exp(math.sin(x))))))
         case _:
             res = int(random.randint(1,100)*random.randint(1,100)/random.randint(1,100))
     if(res>100):

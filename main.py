@@ -70,24 +70,10 @@ similar_items = lsh.lsh(signature_matrix, rows_per_band=15)
 # In this part the recommendation system actually operates and the utility 
 # matrix is filled with the missing values, taking the value from the K most 
 # similar query for a user 
-similarity = "cosine"
 
 
-# this part finds the K-most similar queries for each query
-k_most_similar = {}
-for query in range(utility.shape[1]):
-  prefs = []
-  for i in similar_items[query]:
-    if similarity == "jaccard":
-      prefs.append(sim.jaccard_threshold(utility[:,query], utility[:,i], T=50))
-    else:
-      prefs.append(sim.cosine_similarity(utility[:,query], utility[:,i]))
-  
-  k_most_similar[query] = []
-  if len(similar_items[query]) > 0: # at least one similar query found
-    most_similar_query_i = np.argsort(prefs)[min(-K,len(prefs)):]
-    k_most_similar[query] =  [list(similar_items[query])[i] for i in most_similar_query_i]
-
+# find the K-most similar queries for each query
+k_most_similar = lsh.get_k_most_similar_queries(K, utility, similar_items, similarity="cosine")
 
 
 # now the recommendation system computes the missing values as the average of 

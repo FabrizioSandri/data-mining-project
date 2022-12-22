@@ -1,6 +1,7 @@
 import lsh
 import similarity_measures as sim
 import evaluate as ev
+import recommendation as rec
 
 import numpy as np
 import pandas as pd
@@ -11,8 +12,9 @@ import matplotlib.pyplot as plt
 utility_df = pd.read_csv("tests/Dataset/dataFolder/UtilityDataset_Synthetic.csv", index_col=0)
 utility_df.fillna(0, inplace=True)
 utility = utility_df.to_numpy()
+original_utility = utility.copy()
 
-K = 3 # predict the rating with the rating of the K most similar queries
+K = 5 # predict the rating with the rating of the K most similar queries
 
 
 ################################################################################
@@ -72,19 +74,7 @@ similar_items = lsh.lsh(signature_matrix, rows_per_band=15)
 # similar query for a user 
 
 
-# find the K-most similar queries for each query
-k_most_similar = lsh.get_k_most_similar_queries(K, utility, similar_items, similarity="cosine")
-
-
-# now the recommendation system computes the missing values as the average of 
-# the K most similar queries 
-for query in range(utility.shape[1]):
-  print("Predicting missing ratings for query %d" % query)
-  for user in range(utility.shape[0]):
-    if utility[user, query] == 0 and len(k_most_similar[query]) > 0:
-      similar_ratings = [utility[user,j] for j in k_most_similar[query]]
-      utility[user, query] = round(np.mean(similar_ratings))
-
+predicted_utility = rec.predictAsTopKAverage(utility, similar_items, K, "cosine")
 
 
 # dump the predicted utility matrix to file

@@ -7,6 +7,14 @@ from .datasetUtility import csvSaver
 
 def generateQueryDataset(inputDataset, queryMatrixRows, percentage_of_max_conditions = 0.05):
     #this function generate the dataset of the queries
+    #It takes percentage_of_max_conditions as max conditions per query,
+    #the percentage is low in order to have many results with high numbers of
+    #answers. 
+    #the function choose a random row of the relational table, select few columns
+    #to set the conditions, and then save the query as a row of the query matrix.
+    # first column of the matrix is teh query iD.
+    # others are the columns of the relational table, if a condition is set the 
+    # row + column will have the value of the condition, "" blank otherwise
 
     inputRows, inputColumns = inputDataset.shape
     queryMatrix = []
@@ -29,6 +37,9 @@ def generateQueryDataset(inputDataset, queryMatrixRows, percentage_of_max_condit
     return queryDataset
 
 def queryResults(inputDataset, query):
+    # this function returns the results (the relational table rows)
+    # the query would retrieve from the relational table.
+    # this part is triviaò as the main feature to set a grade is how many rows are gotten as answer
     tmp = inputDataset
     for i in range(1, len(query)):
         if(query[i] != ""):

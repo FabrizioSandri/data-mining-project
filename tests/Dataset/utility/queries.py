@@ -5,7 +5,7 @@ import random
 from .datasetUtility import csvSaver
 
 
-def generateQueryDataset(inputDataset, queryMatrixRows, percentage_of_max_conditions = 0.05):
+def generateQueryDataset(inputDataset, queryMatrixRows, percentage_of_max_conditions = 0.05, real = False):
     #this function generate the dataset of the queries
     #It takes percentage_of_max_conditions as max conditions per query,
     #the percentage is low in order to have many results with high numbers of
@@ -32,7 +32,10 @@ def generateQueryDataset(inputDataset, queryMatrixRows, percentage_of_max_condit
     columns_label = ["f"+str(i) for i in range(-1, inputColumns)]#col stand for column
     columns_label[0] = "Q"
     queryDataset = pd.DataFrame(queryMatrix, columns=columns_label)
-    dataName = "QueriesDataset.csv"
+    if real == True:
+        dataName = "QueriesDataset_Real.csv"
+    else:
+        dataName = "QueriesDataset_Syntethic.csv"
     csvSaver(dataName=dataName, dataset=queryDataset)
     return queryDataset
 

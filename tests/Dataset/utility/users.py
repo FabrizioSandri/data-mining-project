@@ -89,7 +89,7 @@ def getUserGrades(queriesResult, userId):
         userArray.append(gradeFunction(userType = userType, x = queriesResult[i]))
     return userArray
 
-def utilityMatrixGenerator(userArray, queryDataset, inputdataset):
+def utilityMatrixGenerator(userArray, queryDataset, inputdataset, sparsity = 0.3, real = False):
     #function which generate utility matrix
     #based on the query matrix and on the getUserGrades
     #return the final utilityMatrix
@@ -110,8 +110,19 @@ def utilityMatrixGenerator(userArray, queryDataset, inputdataset):
     columns_label.append
     columns_label = ["Q"+str(i) for i in range(-1, q_rows)]#col stand for column
     columns_label[0] = "Usr"
+
+    #generate sparsity
+    sparsity_amount = int(sparsity * (len(utilityMatrix)) * (len(columns_label)-1))   
+    for i in range(sparsity_amount):
+        row = random.randint(1, (len(utilityMatrix)-1))
+        column = random.randint(1, (len(columns_label)-1))
+        utilityMatrix[row][column] = ''
+
     utilityDataset = pd.DataFrame(utilityMatrix, columns=columns_label)
-    dataName = "UtilityDataset.csv"
+    if real == True:
+        dataName = "UtilityDataset_Real.csv"
+    else:
+        dataName = "UtilityDataset_Synthetic.csv"
     csvSaver(dataName=dataName, dataset=utilityDataset)
     return utilityDataset
 

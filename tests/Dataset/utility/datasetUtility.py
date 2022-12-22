@@ -1,6 +1,13 @@
 from sklearn.datasets import make_multilabel_classification, make_gaussian_quantiles, make_blobs, make_moons
 import pandas as pd
 
+def importCSV(path):
+    df = pd.read_csv(path)
+    columns = df.shape
+    columns_label = ["F"+str(i) for i in range(0, columns[1])]
+    df.columns = columns_label
+    return df
+
 def csvSaver(dataName, dataset):
     path = "tests/Dataset/dataFolder/"+dataName
     dataset.to_csv(path, index=False)

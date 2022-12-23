@@ -2,6 +2,9 @@ import similarity_measures as sim
 import numpy as np
 import pandas as pd
 
+
+########################### COLLABORATIVE FILTERING ############################
+
 '''
 This function returns the K most similar queries for each of the queries in the 
 utility matrix.
@@ -131,9 +134,29 @@ Returns:
   matrix
 '''
 def get_t_most_similar_queries_content(T, k_most_similar):
+  t_most_similar = {}
+  
+  # find the rows returned by each query to avoid recomputing them several times
+  row_ids = {}
+  for q in range(len(k_most_similar)):
+    row_ids[q] = getRowsIds(q)
 
+  # iterator on the K most similar queries to extract the T<K most similar 
+  # queries based on their content
+  for query in range(len(k_most_similar)):
+    queries_in_common = []
+    rows_of_query = row_ids[query] # get the ids of the rows returned by query
 
+    for i in k_most_similar[query]: 
+      rows_of_query_i = row_ids[i]
+      queries_in_common.append(len(np.intersect1d(rows_of_query, rows_of_query_i)))
 
+    t_most_similar[query] = []
+    if len(k_most_similar[query]) > 0:
+      most_similar_query_i = np.argsort(queries_in_common)[-min(T,len(queries_in_common)-1):]
+      t_most_similar[query] =  [list(k_most_similar[query])[i] for i in most_similar_query_i]
+
+  return t_most_similar
 
 
 # def predictAsMostSimilarContent(utility, similar_items, K, similarity):

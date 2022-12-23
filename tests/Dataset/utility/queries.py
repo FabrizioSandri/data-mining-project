@@ -31,13 +31,27 @@ def generateQueryDataset(inputDataset, queryMatrixRows, percentage_of_max_condit
         queryMatrix.append(query)
     columns_label = ["f"+str(i) for i in range(-1, inputColumns)]#col stand for column
     columns_label[0] = "Q"
-    queryDataset = pd.DataFrame(queryMatrix, columns=columns_label)
+    queryDataset_for_utilityMatrix = pd.DataFrame(queryMatrix, columns=columns_label)
+
+    #generate the request querydataset
+    q_set = []    
+    for i in range(len(queryMatrix)):
+        q_set_row = []
+        q_set_row.append(queryMatrix[i][0])
+        for j in range(1, len(queryMatrix[1])):
+            if(queryMatrix[i][j] != ""):
+                condition = "F"+str(j-1)+"="+str(queryMatrix[i][j])
+                q_set_row.append(condition)
+        q_set.append(q_set_row)
+    
+    queryDataset = pd.DataFrame(q_set)
+
     if real == True:
         dataName = "QueriesDataset_Real.csv"
     else:
         dataName = "QueriesDataset_Syntethic.csv"
     csvSaver(dataName=dataName, dataset=queryDataset)
-    return queryDataset
+    return queryDataset_for_utilityMatrix
 
 def queryResults(inputDataset, query):
     # this function returns the results (the relational table rows)

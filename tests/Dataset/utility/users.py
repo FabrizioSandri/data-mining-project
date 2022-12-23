@@ -38,15 +38,15 @@ def gradeFunction(userType, x):
     match userType:
         case 0:
             if(x == 0):
-                res = random.randint(80,100)
+                res = random.randint(90,100)
             else:
-                k = random.randint(60,99)
+                k = random.randint(70,99)
                 res = int(k-x**1.05)
         case 1:
             if(x == 0):
-                res = random.randint(1,20)
+                res = random.randint(1,15)
             else:
-                k = random.randint(1,20)
+                k = random.randint(1,15)
                 res = int(k+x**1.05)
         case 2:
             if(x == 0):
@@ -55,26 +55,26 @@ def gradeFunction(userType, x):
                 k = random.randint(30,70)
                 res = int(k-x**1.05)
         case 3:
-            k = random.randint(50,100)  
+            k = random.randint(80,100)  
             res = int(math.log(x+math.exp((x+1)/(k*x))))
         case 4:    
-            k = random.randint(50,100)          
+            k = random.randint(80,100)          
             res = abs(int(math.log(x+math.exp(k*math.sin(x)))))
         case 5:    
-            k = random.randint(50,100)        
+            k = random.randint(80,100)        
             res = abs(int(k*math.cos(x)))
         case 6:   
-            k = random.randint(50,100)         
+            k = random.randint(80,100)         
             res = abs(int(k*math.tan(x)))
         case 7:   
-            k = random.randint(50,100)         
+            k = random.randint(80,100)         
             res = abs(int(k*math.sin(x+ math.log(x+math.exp(math.sin(x))))))
         case _:
             res = int(random.randint(1,100)*random.randint(1,100)/random.randint(1,100))
     if(res>100):
-        res = random.randint(95,100)
+        res = random.randint(10,100)
     elif(res<1):
-        res = random.randint(1,5)
+        res = random.randint(1,10)
     return res
 
 def getUserGrades(queriesResult, userId):

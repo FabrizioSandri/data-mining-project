@@ -70,7 +70,7 @@ Returns:
 '''
 def simHash(utility_matrix, hyperplanes):
   utility_processed = utility_matrix - 50
-  #utility[utility==-51] = 0   # -51 corresponds to the missing values
+  utility_matrix[utility_matrix==-51] = 0   # -51 corresponds to the missing values
 
   rows, cols = utility_matrix.shape
   signature_matrix = np.full((hyperplanes, cols), 0)

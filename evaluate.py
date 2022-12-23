@@ -473,13 +473,13 @@ Returns:
   This function returns the average difference between the real values values of 
   the utility matrix and the predicted ones: this is a value between 0 and 99
 '''
-def evaluate_prediction(original_utility, test_size, similarity):
+def evaluate_prediction(original_utility, test_size, similarity, relational_table, query_set):
   utility = original_utility.copy()
   
   test_mask = np.random.choice([True, False], original_utility.shape , p=[test_size,1-test_size])
   test_mask = test_mask & (original_utility!=0)
   utility[test_mask] = 0
-  print(np.sum(test_mask))
+  print("Size of the test: %d" % np.sum(test_mask))
 
   if similarity == "cosine":
     # LSH with simHash
@@ -492,9 +492,18 @@ def evaluate_prediction(original_utility, test_size, similarity):
 
 
   # compute the missing ratings
-  predicted_utility = rec.predictAsTopKAverage(utility, similar_items, K=3, similarity=similarity)
+  K = 10 
+  T = 10
 
-  return(np.mean(np.abs( original_utility[test_mask]-predicted_utility[test_mask] )))
+  k_most_similar = rec.get_k_most_similar_queries_utility(K, utility, similar_items, similarity)
+  t_most_similar = rec.get_t_most_similar_queries_content(T, similar_items, relational_table, query_set)
+  predicted_utility_k = rec.predictAsAverage(utility, k_most_similar)
+  predicted_utility_t = rec.predictAsAverage(utility, t_most_similar)
+  
+  avg_error_only_lsh = np.mean(np.abs( original_utility[test_mask] - predicted_utility_k[test_mask] ))
+  avg_error_lsh_content = np.mean(np.abs( original_utility[test_mask] - predicted_utility_t[test_mask] ))
+
+  return(avg_error_only_lsh,avg_error_lsh_content)
 
 
 

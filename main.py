@@ -11,11 +11,14 @@ import matplotlib.pyplot as plt
 #### VARIABLES
 utility_df = pd.read_csv("tests/Dataset/dataFolder/UtilityDataset_Synthetic.csv", index_col=0)
 utility_df.fillna(0, inplace=True)
+
+query_set = pd.read_csv("tests/Dataset/dataFolder/QueriesDataset_Syntethic.csv", index_col=0, header=None)
+relational_table = pd.read_csv("tests/Dataset/dataFolder/RelationaTable_make_blobs.csv")
+relational_table = relational_table.convert_dtypes()
+
+
 utility = utility_df.to_numpy()
 original_utility = utility.copy()
-
-K = 5 # predict the rating with the rating of the K most similar queries
-
 
 ################################################################################
 # The following two snippets of code runs LSH with minHash and LSH with simHash.
@@ -74,11 +77,18 @@ similar_items = lsh.lsh(signature_matrix, rows_per_band=15)
 # similar query for a user 
 
 
-predicted_utility = rec.predictAsTopKAverage(utility, similar_items, K, "cosine")
+# find the K-most similar queries for each query
+K = 10 
+T = 10
+
+k_most_similar = rec.get_k_most_similar_queries_utility(K, utility, similar_items, "cosine")
+t_most_similar = rec.get_t_most_similar_queries_content(T, similar_items, relational_table, query_set)
+predicted_utility_k = rec.predictAsAverage(utility, k_most_similar)
+predicted_utility_t = rec.predictAsAverage(utility, t_most_similar)
 
 
 # dump the predicted utility matrix to file
-predicted_utility_df = pd.DataFrame(utility)
+predicted_utility_df = pd.DataFrame(predicted_utility_k)
 predicted_utility_df.columns = utility_df.keys()
 predicted_utility_df.index = utility_df.index
 predicted_utility_df.to_csv("predicted.csv")
@@ -92,3 +102,9 @@ predicted_utility_df.to_csv("predicted.csv")
 # fake_utility = np.random.randint(1,101, utility.shape) # utility with random values
 # avg_fake = ev.evaluate_prediction(fake_utility, utility, mask)
 # print("The predicted ratings differ from the randomly generated predictions by an average of %f" % np.mean(avg_fake))
+
+avg_error_only_lsh,avg_error_lsh_content = ev.evaluate_prediction(original_utility, 0.01, "cosine", relational_table, query_set)
+
+print("The predicted ratings using only LSH differ from the real ones by an average of %f" % avg_error_only_lsh)
+print("The predicted ratings using LSH + content based differ from the real ones by an average of %f" % avg_error_lsh_content)
+print("The predicted ratings differ from the randomly generated predictions by an average of %f" % ev.evaluate_prediction_random(original_utility, 0.01))

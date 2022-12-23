@@ -38,52 +38,7 @@ def get_k_most_similar_queries_utility(K, utility, similar_items, similarity="co
   return k_most_similar
 
 
-
-'''
-This function returns a utility matrix filled with the missing ratings by taking
-the average of the K most similar queries that a user has rated
-
-Arguments:
-  utility: the utility matrix
-  similar_items: a dictionary containing the similar items found by LSH(the 
-    output of the LSH procedure)
-  K: the number of most similar queries to find for each query
-  similarity: the similarity measure to use for comparing the queries, either 
-    "jaccard" or "cosine" 
-  
-Returns:
-  The utility matrix with the filled missing ratings 
-'''
-def predictAsTopKAverage(utility, similar_items, K, similarity):
-  predicted_utility = utility.copy()
-
-  # find the K-most similar queries for each query
-  k_most_similar = get_k_most_similar_queries_utility(K, utility, similar_items, similarity)
-
-
-  # now the recommendation system computes the missing values as the average of 
-  # the K most similar queries 
-  for query in range(predicted_utility.shape[1]):
-    print("Predicting missing ratings for query %d" % query)
-    for user in range(predicted_utility.shape[0]):
-      if predicted_utility[user, query] == 0:
-        if len(k_most_similar[query]) > 0:
-          similar_ratings = [predicted_utility[user,j] for j in k_most_similar[query]]
-          predicted_utility[user, query] = round(np.mean(similar_ratings))
-        else:
-          predicted_utility[user, query] = np.random.randint(1,101) # if no similar query is found predict with a random value
-
-  return predicted_utility
-
-
-
-
-
 ############################## CONTENT BASED ###################################
-querySet = pd.read_csv("tests/Dataset/dataFolder/QueriesDataset_Syntethic.csv", index_col=0, header=None)
-relational_table = pd.read_csv("tests/Dataset/dataFolder/RelationaTable_make_blobs.csv")
-relational_table = relational_table.convert_dtypes()
-
 
 '''
 This function simulates a DBMS by returning the ids of the rows of the 
@@ -92,16 +47,19 @@ input. Note that the input query is a query id
 
 Arguments:
   query: the id of the query without the "Q" prefix
+  relational_table: the pandas dataframe containing the relational table
+  query_set: the pandas dataframe containing the description of the queries sent
+    by the users
 
 Returns:
   A list containing the row ids that the query has returned. If the query 
   doesn't return anything the result is an empty list: no row has been returned.
 '''
-def getRowsIds(query):
+def getRowsIds(query, relational_table, query_set):
 
   result_rows = np.full((relational_table.shape[0]), True)
 
-  query_full_row = querySet.loc["Q"+str(query)]
+  query_full_row = query_set.loc["Q"+str(query)]
   query_conditions = query_full_row[~pd.isna(query_full_row)].tolist() # remove NAN conditions
   for condition in query_conditions:
     splitted = condition.split("=")
@@ -128,18 +86,21 @@ Arguments:
   k_most_similar: the K most similar queries for each query in the utility 
     matrix returned by the function the get_k_most_similar_queries_utility that 
     returns the similar queries according to collaborative filtering + LSH
+  relational_table: the pandas dataframe containing the relational table
+  query_set: the pandas dataframe containing the description of the queries sent
+    by the users
   
 Returns:
   A dictionary of the top T most similar queries for each query in the utility
   matrix
 '''
-def get_t_most_similar_queries_content(T, k_most_similar):
+def get_t_most_similar_queries_content(T, k_most_similar, relational_table, query_set):
   t_most_similar = {}
   
   # find the rows returned by each query to avoid recomputing them several times
   row_ids = {}
   for q in range(len(k_most_similar)):
-    row_ids[q] = getRowsIds(q)
+    row_ids[q] = getRowsIds(q, relational_table, query_set)
 
   # iterator on the K most similar queries to extract the T<K most similar 
   # queries based on their content
@@ -159,23 +120,34 @@ def get_t_most_similar_queries_content(T, k_most_similar):
   return t_most_similar
 
 
-# def predictAsMostSimilarContent(utility, similar_items, K, similarity):
-#   predicted_utility = utility.copy()
+########################## HYBRID RECOMMENDATION ###############################
 
-#   # find the K-most similar queries for each query
-#   k_most_similar = get_k_most_similar_queries_utility(K, utility, similar_items, similarity)
-#   t_most_similar = 
+'''
+This function returns a utility matrix filled with the missing ratings by taking
+the average of the most similar queries that a user has rated, according to 
 
-#   # now the recommendation system computes the missing values as the average of 
-#   # the K most similar queries 
-#   for query in range(predicted_utility.shape[1]):
-#     print("Predicting missing ratings for query %d" % query)
-#     for user in range(predicted_utility.shape[0]):
-#       if predicted_utility[user, query] == 0:
-#         if len(t_most_similar[query]) > 0:
-#           similar_ratings = [predicted_utility[user,j] for j in t_most_similar[query]]
-#           predicted_utility[user, query] = round(np.mean(similar_ratings))
-#         else:
-#           predicted_utility[user, query] = np.random.randint(1,101) # if no similar query is found predict with a random value
+Arguments:
+  utility: the utility matrix
+  similar_items: a dictionary containing the similar items found by LSH 
+    (for collaborative filtering with LSH only) or the similar items found by 
+    the combination of collaborative filtering + content based(hybrid)
+  
+Returns:
+  The utility matrix with the filled missing ratings 
+'''
+def predictAsAverage(utility, most_similar):
+  predicted_utility = utility.copy()
 
-#   return predicted_utility
+  # now the recommendation system computes the missing values as the average of 
+  # the K most similar queries 
+  for query in range(predicted_utility.shape[1]):
+    print("Predicting missing ratings for query %d" % query)
+    for user in range(predicted_utility.shape[0]):
+      if predicted_utility[user, query] == 0:
+        if len(most_similar[query]) > 0:
+          similar_ratings = [predicted_utility[user,j] for j in most_similar[query]]
+          predicted_utility[user, query] = round(np.mean(similar_ratings))
+        else:
+          predicted_utility[user, query] = np.random.randint(1,101) # if no similar query is found predict with a random value
+
+  return predicted_utility

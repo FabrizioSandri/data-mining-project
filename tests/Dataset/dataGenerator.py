@@ -20,22 +20,22 @@ sparsity = 0.3
 
 def synthetic():
     logger.info("User dataset generation")
-    userArray, userDataset = userGenerator(2000)
+    userArray, userDataset = userGenerator(500)
     logger.info("Relational Table generation")
     relational_table = generateRelationalTable(10000, 150)
     logger.info("Query DataSets Generation")
-    queryDataset = generateQueryDataset(relational_table, 250, 0.05, False)
+    queryDataset = generateQueryDataset(relational_table, 1000, 0.3, False)
     logger.info("Utility Matrix DataSets Generation")
     utility_matrix = utilityMatrixGenerator(userArray, queryDataset, relational_table, sparsity, False)
     logger.info("Closing Generation Phase")
 
 def real():
     logger.info("User dataset generation")
-    userArray, userDataset = userGenerator(2000)
+    userArray, userDataset = userGenerator(500)
     logger.info("Relational Table generation")
     relational_table = importCSV("tests/Dataset/dataFolder/madelon_test.csv")
     logger.info("Query DataSets Generation")
-    queryDataset = generateQueryDataset(relational_table, 250, 0.05, True)
+    queryDataset = generateQueryDataset(relational_table, 1000, 0.3, True)
     logger.info("Utility Matrix DataSets Generation")
     utility_matrix = utilityMatrixGenerator(userArray, queryDataset, relational_table, sparsity, True)
     logger.info("Closing Generation Phase")

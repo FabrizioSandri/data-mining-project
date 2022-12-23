@@ -22,14 +22,14 @@ def userGenerator(nUser):
 
 def gradeFunction(userType, x):
     #this function given a user type decide which
-    #would be the grade of a given quer result, 
+    #would be the grade of a given query result, 
     # x in particular is the query result
-    #each user have samo randomization to try to avoid identical users
+    #each user have same randomization to try to avoid identical users
     #
     #currently there are 8 types of users:
     #-> low # results good then exponential decade of the grade as the # increase
     #-> high # results good then exponential decade of the grade as the # decrease
-    #-> middle range grade user with an exponentiale decade with high variance due to high randomization
+    #-> middle range grade user with an exponential decade with high variance due to high randomization
     #-> math.log(x+math.exp((x+1)/(k*x))) function user, k gives some randomization
     #-> math.log(x+math.exp(k*math.sin(x))) function user, k gives some randomization
     #-> cosine grading user

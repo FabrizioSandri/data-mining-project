@@ -9,11 +9,11 @@ import time
 import matplotlib.pyplot as plt
 
 #### VARIABLES
-utility_df = pd.read_csv("tests/Dataset/dataFolder/UtilityDataset_Synthetic.csv", index_col=0)
+utility_df = pd.read_csv("Dataset/dataFolder/UtilityDataset_Synthetic.csv", index_col=0)
 utility_df.fillna(0, inplace=True)
 
-query_set = pd.read_csv("tests/Dataset/dataFolder/QueriesDataset_Syntethic.csv", index_col=0, header=None)
-relational_table = pd.read_csv("tests/Dataset/dataFolder/RelationaTable_make_blobs.csv")
+query_set = pd.read_csv("Dataset/dataFolder/QueriesDataset_Syntethic.csv", index_col=0, header=None)
+relational_table = pd.read_csv("Dataset/dataFolder/RelationaTable_make_blobs.csv")
 relational_table = relational_table.convert_dtypes()
 
 
@@ -21,13 +21,12 @@ utility = utility_df.to_numpy()
 original_utility = utility.copy()
 
 ################################################################################
-# The following two snippets of code runs LSH with minHash and LSH with simHash.
-# They are there just as a reference to be used for testing.
+# The following two snippets of code runs LSH with minHash and LSH with simHash
+# on the utility matrix to extract the candidate similar queries of each query.
 
 ### LSH with minHash
 # signature_matrix = lsh.minHash(utility_matrix=utility, k=400, T=50)
 # similar_items = lsh.lsh(signature_matrix, rows_per_band=7)
-
 
 ### LSH with simHash
 signature_matrix = lsh.simHash(utility_matrix=utility, hyperplanes=400)
@@ -93,18 +92,11 @@ predicted_utility_df.columns = utility_df.keys()
 predicted_utility_df.index = utility_df.index
 predicted_utility_df.to_csv("predicted.csv")
 
-# # measure the average difference between the predicted ratings and the originals
-# avg = ev.evaluate_prediction(original_utility, utility, mask)
-# print("The predicted ratings differ from the real ones by an average of %f" % np.mean(avg))
 
-
-# # compare the results with random assignment of the ratings
-# fake_utility = np.random.randint(1,101, utility.shape) # utility with random values
-# avg_fake = ev.evaluate_prediction(fake_utility, utility, mask)
-# print("The predicted ratings differ from the randomly generated predictions by an average of %f" % np.mean(avg_fake))
-
-avg_error_only_lsh,avg_error_lsh_content = ev.evaluate_prediction(original_utility, 0.01, "cosine", relational_table, query_set)
+################################################################################
+# In this part we evaluate the results found by the recommendation system 
+avg_error_only_lsh, avg_error_lsh_content, avg_error_random = ev.evaluate_prediction(original_utility, 0.01, "cosine", relational_table, query_set)
 
 print("The predicted ratings using only LSH differ from the real ones by an average of %f" % avg_error_only_lsh)
 print("The predicted ratings using LSH + content based differ from the real ones by an average of %f" % avg_error_lsh_content)
-print("The predicted ratings differ from the randomly generated predictions by an average of %f" % ev.evaluate_prediction_random(original_utility, 0.01))
+print("The predicted ratings differ from the randomly generated predictions by an average of %f" % avg_error_random)

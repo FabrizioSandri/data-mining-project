@@ -462,16 +462,47 @@ def plot_time_increase(utility, num_users_j, num_users_c, num_queries_j, num_que
 
 
 '''
-This function allows to measure the average error between the predicted ratings 
-and the real ones 
+This function computes the RMSE between the real values specified by target and 
+the predicted values specified by predictions.
 
 Arguments:
-  original_utility: the original utility matrix without sparsity
+  target: the real values
+  prediction: the predicted values
+
+Returns:
+  The RMSE between the real values and the predicted values
+'''
+def rmse(target, prediction):
+  return np.sqrt(np.mean((prediction-target)**2))
+
+
+
+'''
+This function allows to measure the average error between the predicted ratings 
+and the real ones. In a first step this function runs LSH with simHash or 
+minHash based on the `similarity` parameter. Then this function predicts the 
+utility matrix only using the average of the K most similar queries found by LSH.
+In addition this function predicts the utility matrix with another step that 
+after LSH that is using content based recommendation by finding among the 
+similar queries found by LSH the T most similar by looking at their content, 
+i.e. given a query q the T most similar among the similar items of q found by 
+LSH are the queries that have the highest number of tuples in common with q.
+At the end the utility matrix is also predicted with random values in order to 
+compare the random predictions with sensate ones.
+
+Arguments:
+  original_utility: the original utility matrix taken as input
   test_size: fraction of non-zero values to use as test set(percentage)
+  similarity: either "jaccard" or "cosine", this allows to choose whether to use 
+    MinHash or SimHash as LSH technique
+  relational_table: the pandas dataframe containing the relational table
+  query_set: the pandas dataframe containing the description of the queries sent
+    by the users
   
 Returns:
-  This function returns the average difference between the real values values of 
-  the utility matrix and the predicted ones: this is a value between 0 and 99
+  This function returns three average differences between the real ratings of 
+  the utility matrix and the predicted ones: 
+  1. the first returned element is the average error
 '''
 def evaluate_prediction(original_utility, test_size, similarity, relational_table, query_set):
   utility = original_utility.copy()
@@ -499,25 +530,11 @@ def evaluate_prediction(original_utility, test_size, similarity, relational_tabl
   t_most_similar = rec.get_t_most_similar_queries_content(T, similar_items, relational_table, query_set)
   predicted_utility_k = rec.predictAsAverage(utility, k_most_similar)
   predicted_utility_t = rec.predictAsAverage(utility, t_most_similar)
-  
-  avg_error_only_lsh = np.mean(np.abs( original_utility[test_mask] - predicted_utility_k[test_mask] ))
-  avg_error_lsh_content = np.mean(np.abs( original_utility[test_mask] - predicted_utility_t[test_mask] ))
+  predicted_utility_random = np.random.randint(1,101, utility.shape) # predict with random values
 
-  return(avg_error_only_lsh,avg_error_lsh_content)
+  avg_error_only_lsh = rmse(original_utility[test_mask], predicted_utility_k[test_mask])
+  avg_error_lsh_content = rmse( original_utility[test_mask], predicted_utility_t[test_mask])
+  avg_error_random = rmse( original_utility[test_mask], predicted_utility_random[test_mask])
 
-
-
-def evaluate_prediction_random(original_utility, test_size):
-  utility = original_utility.copy()
-  
-  test_mask = np.random.choice([True, False], original_utility.shape , p=[test_size,1-test_size])
-  test_mask = test_mask & (original_utility!=0)
-  utility[test_mask] = 0
-  print(np.sum(test_mask))
-
-  
-  predicted_utility = np.random.randint(1,101, utility.shape) # utility with random values
-
-
-  return(np.mean(np.abs( original_utility[test_mask]-predicted_utility[test_mask] )))
+  return(avg_error_only_lsh, avg_error_lsh_content, avg_error_random)
 

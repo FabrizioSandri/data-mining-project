@@ -1,5 +1,6 @@
 from sklearn.datasets import make_multilabel_classification, make_gaussian_quantiles, make_blobs, make_moons
 import pandas as pd
+import numpy as np
 
 def importCSV(path):
     df = pd.read_csv(path)
@@ -9,7 +10,7 @@ def importCSV(path):
     return df
 
 def csvSaver(dataName, dataset):
-    path = "tests/Dataset/dataFolder/"+dataName
+    path = "Dataset/dataFolder/"+dataName
     dataset.to_csv(path, index=False)
 
 def generateRelationalTable(rows, columns, typeDataset="make_blobs"):
@@ -37,7 +38,6 @@ def generateRelationalTable(rows, columns, typeDataset="make_blobs"):
                 n_features=n_Features,
                 random_state = 89
             )
-        X = 10*X
         rows, columns = X.shape
         for i in range(rows):
             for j in range(columns):

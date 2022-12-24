@@ -64,3 +64,33 @@ def queryResults(inputDataset, query):
             tmp = tmp.query(Q)
     filteredSet = tmp
     return filteredSet
+
+def querySimilarity(inputDataset, query1, query2, threshold = 0.4):
+    pass
+    '''q1 = queryResults(inputDataset, query1)
+    q2 = queryResults(inputDataset, query2)
+    print(q1.columns.values)
+    print(q2.columns.values)
+    print("start similarity")
+    union = q1.compare(q2, keep_equal = True)
+    res = 0
+    if len(q1) >= int(len(union*threshold)) and len(q2) >= int(len(union*threshold)):
+        res = 1
+    return res '''
+
+def querySimilarityMatrix(inputdataset, querydataset):
+    pass
+    '''q_rows, q_columns = querydataset.shape
+    sim_matrix = []
+    for i in range(q_rows-1):
+        sim_q = []
+        for j in range(q_rows-1):
+            print(querydataset.iloc[j])
+            if(i!=j):
+                res = querySimilarity(inputdataset, querydataset.iloc[i], querydataset.iloc[j])
+            else:
+                res = 1
+            sim_q.append(res)
+        sim_matrix.append(sim_q)
+        print(sim_matrix)
+    return sim_matrix'''

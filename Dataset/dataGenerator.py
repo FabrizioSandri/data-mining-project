@@ -20,9 +20,9 @@ sparsity = 0.3
 
 def synthetic():
     logger.info("User dataset generation")
-    userArray, userDataset = userGenerator(500)
+    userArray, userDataset = userGenerator(50)
     logger.info("Relational Table generation")
-    relational_table = generateRelationalTable(10000, 150)
+    relational_table = generateRelationalTable(1000, 150)
     logger.info("Query DataSets Generation")
     queryDataset = generateQueryDataset(relational_table, 1000, 0.03, False)
     logger.info("Utility Matrix DataSets Generation")

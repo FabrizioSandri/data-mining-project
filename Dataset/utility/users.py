@@ -93,14 +93,13 @@ def gradeFunction(userType, x, rel_table_total_rows):
         res = random.randint(1,10)
     return res
 
-def getUserGrades(queriesResult, userId, rel_table_total_rows, userType):
+def getUserGrades(queriesResult, rel_table_total_rows, userType):
     #user = userId.replace("usr", "")
     #this function give randomly to each user a user type
     #so then can select the type of function to use
     #and give a grade to each query
     #userType = random.randint(0,8)#randomize the user type
     userArray = []
-    userArray.append(userId)
     for i in range(len(queriesResult)):
         userArray.append(gradeFunction(userType, x = queriesResult[i],rel_table_total_rows = rel_table_total_rows))
     return userArray
@@ -139,16 +138,15 @@ def utilityMatrixGenerator(userArray, queryDataset, relational_table, sparsity =
     #for loops for each user type
     for usr in propUsersArray:
         userType = 0
-        utilityMatrix.append(getUserGrades(query_answers, usr, input_rows, userType))
+        utilityMatrix.append(getUserGrades(query_answers, input_rows, userType))
     for usr in simGradUsersArray:
         userType = 1
-        utilityMatrix.append(getUserGrades(query_answers, usr, input_rows, userType))
+        utilityMatrix.append(getUserGrades(query_answers, input_rows, userType))
     for usr in randomUsersArray:
         userType = 2
-        utilityMatrix.append(getUserGrades(query_answers, usr, input_rows, userType))
+        utilityMatrix.append(getUserGrades(query_answers, input_rows, userType))
     columns_label = []
-    columns_label = ["Q"+str(i) for i in range(-1, q_rows)]#col stand for column
-    columns_label[0] = "Usr"
+    columns_label = ["Q"+str(i) for i in range(q_rows)]#col stand for column
 
     #generate sparsity
     sparsity_amount = int(sparsity * (len(utilityMatrix)) * (len(columns_label)-1))   
@@ -157,7 +155,7 @@ def utilityMatrixGenerator(userArray, queryDataset, relational_table, sparsity =
         column = random.randint(1, (len(columns_label)-1))
         utilityMatrix[row][column] = ''
 
-    utilityDataset = pd.DataFrame(utilityMatrix, columns=columns_label)
+    utilityDataset = pd.DataFrame(utilityMatrix, columns=columns_label, index=userArray)
     utilityDataset = utilityDataset.sample(frac=1)
     if real == True:
         dataName = "UtilityDataset_Real.csv"

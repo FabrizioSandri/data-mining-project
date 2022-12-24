@@ -5,7 +5,7 @@ import numpy as np
 import random
 import math
 from .datasetUtility import csvSaver
-from .queries import queryResults, generateQueryDataset, querySimilarityMatrix
+from .queries import queryResultsIds, generateQueryDataset, querySimilarityMatrix
 
 def userGenerator(nUser):
     #this function generate the dataset composed by the user iD
@@ -17,7 +17,7 @@ def userGenerator(nUser):
     columns_label = ["Users"]#col stand for column
     userDataset = pd.DataFrame(userArray, columns=columns_label)
     dataName = "userDataset.csv"
-    csvSaver(dataName=dataName, dataset=userDataset)
+    csvSaver(dataName=dataName, dataset=userDataset, header=False, index=False)
     return userArray, userDataset
 
 def gradeFunction(userType, x, rel_table_total_rows):
@@ -105,7 +105,7 @@ def getUserGrades(queriesResult, userId, rel_table_total_rows, userType):
         userArray.append(gradeFunction(userType, x = queriesResult[i],rel_table_total_rows = rel_table_total_rows))
     return userArray
 
-def utilityMatrixGenerator(userArray, queryDataset, inputdataset, sparsity = 0.3, real = False):
+def utilityMatrixGenerator(userArray, queryDataset, relational_table, sparsity = 0.3, real = False):
     #function which generate utility matrix
     #based on the query matrix and on the getUserGrades
     #return the final utilityMatrix
@@ -127,16 +127,15 @@ def utilityMatrixGenerator(userArray, queryDataset, inputdataset, sparsity = 0.3
     simGradUsersArray = userArray[propUsers:propUsers+simGradUsers]
     randomUsersArray = userArray[propUsers+simGradUsers:nUsers]
 
-    input_rows, input_columns = inputdataset.shape
+    input_rows, input_columns = relational_table.shape
     q_rows, q_columns = queryDataset.shape
     utilityMatrix = []
     query_answers = []
-    for i in range(q_rows):
-        q = queryDataset.iloc[i]
-        results = queryResults(inputdataset, q)
+    for q in range(q_rows):
+        results = queryResultsIds(q, relational_table, queryDataset)
         query_answers.append(len(results))
 
-    #k = querySimilarityMatrix(inputdataset, queryDataset)
+    #k = querySimilarityMatrix(relational_table, queryDataset)
     #for loops for each user type
     for usr in propUsersArray:
         userType = 0
@@ -148,7 +147,6 @@ def utilityMatrixGenerator(userArray, queryDataset, inputdataset, sparsity = 0.3
         userType = 2
         utilityMatrix.append(getUserGrades(query_answers, usr, input_rows, userType))
     columns_label = []
-    columns_label.append
     columns_label = ["Q"+str(i) for i in range(-1, q_rows)]#col stand for column
     columns_label[0] = "Usr"
 
@@ -165,6 +163,6 @@ def utilityMatrixGenerator(userArray, queryDataset, inputdataset, sparsity = 0.3
         dataName = "UtilityDataset_Real.csv"
     else:
         dataName = "UtilityDataset_Synthetic.csv"
-    csvSaver(dataName=dataName, dataset=utilityDataset)
+    csvSaver(dataName=dataName, dataset=utilityDataset, header=True, index=True)
     return utilityDataset
 

@@ -9,9 +9,9 @@ def importCSV(path):
     df.columns = columns_label
     return df
 
-def csvSaver(dataName, dataset):
+def csvSaver(dataName, dataset, header, index):
     path = "Dataset/dataFolder/"+dataName
-    dataset.to_csv(path, index=False)
+    dataset.to_csv(path, header=header, index=index)
 
 def generateRelationalTable(rows, columns, typeDataset="make_blobs"):
     #typeDataset take some types available in scikit learn library 
@@ -46,5 +46,5 @@ def generateRelationalTable(rows, columns, typeDataset="make_blobs"):
     columns_label = ["F"+str(i) for i in range(0, columns)] #F stands for feature
     dataset = pd.DataFrame(X, columns=columns_label)
     dataName = "RelationaTable_"+typeDataset+".csv"
-    csvSaver(dataName=dataName, dataset=dataset)
+    csvSaver(dataName=dataName, dataset=dataset, header=True, index=False)
     return dataset

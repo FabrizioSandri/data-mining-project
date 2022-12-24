@@ -71,7 +71,8 @@ def getRowsIds(query, relational_table, query_set):
     else:
       result_rows = result_rows & (relational_table[cond_var] == cond_val).to_numpy()
 
-  return np.where(result_rows != False)
+  row_ids = np.where(result_rows != False)
+  return row_ids[0]
   
 
 

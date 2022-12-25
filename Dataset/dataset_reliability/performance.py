@@ -155,12 +155,12 @@ This function can be used to tweak the parameters of makeblobs
 '''
 def showMakeBlobsOutput():
   X, Y = make_blobs(
-                n_samples=100,
-                n_features=10,
-                cluster_std=0.5,
-                center_box=(1,20),
-                random_state = 89
-            )
+    n_samples=100,
+    n_features=10,
+    cluster_std=0.5,
+    center_box=(1,20),
+    random_state = 89
+  )
 
   rows, columns = X.shape
   for i in range(rows):

@@ -34,8 +34,8 @@ def generateRelationalTable(rows, columns, typeDataset="make_blobs"):
             )
     elif(typeDataset == "make_blobs"):
         X, Y = make_blobs(
-            n_samples=100,
-            n_features=10,
+            n_samples=n_Samples,
+            n_features=n_Features,
             cluster_std=0.8,
             center_box=(1,20),
             random_state = 89

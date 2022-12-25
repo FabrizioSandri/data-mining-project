@@ -47,7 +47,7 @@ def generateQueryDataset(relational_table, queryMatrixRows, percentage_of_max_co
                 q_set_row.append(condition)
         q_set.append(q_set_row)
 
-    indexes = ["Q" + str(i) for i in range(inputRows)]
+    indexes = ["Q" + str(i) for i in range(queryMatrixRows)]
     queryDataset = pd.DataFrame(q_set, index=indexes)
     csv_file_name = "QueriesDataset_Real.csv" if real else "QueriesDataset_Syntethic.csv"
     csvSaver(dataName=csv_file_name, dataset=queryDataset, header=False, index=True)

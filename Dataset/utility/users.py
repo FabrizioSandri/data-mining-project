@@ -27,81 +27,6 @@ def userGenerator(nUser):
     csvSaver(dataName="userDataset.csv", dataset=userDataset, header=False, index=False)
     return userArray
 
-def gradeFunction(userType, x, rel_table_total_rows):
-    #this function given a user type decide which
-    #would be the grade of a given query result, 
-    # x in particular is the query result
-    #each user have same randomization to try to avoid identical users
-    #
-    #currently there are 8 types of users:
-    #-> low # results good then exponential decade of the grade as the # increase
-    #-> high # results good then exponential decade of the grade as the # decrease
-    #-> middle range grade user with an exponential decade with high variance due to high randomization
-    #-> math.log(x+math.exp((x+1)/(k*x))) function user, k gives some randomization
-    #-> math.log(x+math.exp(k*math.sin(x))) function user, k gives some randomization
-    #-> cosine grading user
-    #-> tan grading user
-    #-> sin grading user
-    '''match userType:
-        case 0:
-            if(x == 0):
-                res = random.randint(90,100)
-            else:
-                k = random.randint(70,99)
-                res = int(k-x**1.05)
-        case 1:
-            if(x == 0):
-                res = random.randint(1,15)
-            else:
-                k = random.randint(1,15)
-                res = int(k+x**1.05)
-        case 2:
-            if(x == 0):
-                res = random.randint(40,60)
-            else:
-                k = random.randint(30,70)
-                res = int(k-x**1.05)
-        case 3:
-            k = random.randint(80,100)  
-            res = int(math.log(x+math.exp((x+1)/(k*x))))
-        case 4:    
-            k = random.randint(80,100)          
-            res = abs(int(math.log(x+math.exp(k*math.sin(x)))))
-        case 5:    
-            k = random.randint(80,100)        
-            res = abs(int(k*math.cos(x)))
-        case 6:   
-            k = random.randint(80,100)         
-            res = abs(int(k*math.tan(x)))
-        case 7:   
-            k = random.randint(80,100)         
-            res = abs(int(k*math.sin(x+ math.log(x+math.exp(math.sin(x))))))'''
-    res = random.randint(1,100) #to delete, there is a bug and sometimes userType isn't 
-    #going inside the match case, when fixed must delete
-    match userType:
-        case 0: #regarding 40% of proportinal grad users
-            if x < int(rel_table_total_rows * 0.05):
-                    res = random.randint(1, 25)
-            if x < int(rel_table_total_rows * 0.1) and x > int(rel_table_total_rows * 0.05):
-                    res = random.randint(25, 50)
-            if x < int(rel_table_total_rows * 0.25) and x > int(rel_table_total_rows * 0.10):
-                    res = random.randint(50, 75)
-            if x > int(rel_table_total_rows * 0.25):
-                    res = random.randint(75, 100)
-        case 1:
-            res = random.randint(1,100)
-        case 2:
-            res = random.randint(1,100)
-        case _:
-            res = random.randint(1,100)
-    if(res>100):
-        res = random.randint(10,100)
-    elif(res<1):
-        res = random.randint(1,10)
-    return res
-
-
-
 '''
 This function runs K-means with K=20 to identify clusters of queries based on 
 the rows that they generate. 
@@ -213,6 +138,26 @@ def getUserGrades(num_reational_table_rows, num_queries, userType, most_similar,
 
     return user_ratings
 
+
+'''
+This function normalize the vector of ratings user_ratings in the range low-high
+
+Arguments:
+  low: the lowes grade, corresponding to grade 1
+  high: the highest grade, corresponding to grade 100
+
+Returns:
+  A vector of normalized ratings
+'''
+def gradeNormalzation(user_ratings, low, high):
+    norm = user_ratings/100
+    norm *= (high - low)
+    norm += low
+    norm = np.round(norm)
+
+    return norm
+
+
 '''
 Function that generates the utility matrix based on the query set and according to the grade provided by the getUserGrades function.
 
@@ -250,12 +195,13 @@ def utilityMatrixGenerator(userArray, queryDataset, relational_table, sparsity =
     input_rows, input_columns = relational_table.shape
     q_rows, q_columns = queryDataset.shape
 
+
     # generate most_similar vector for the first 50% of users, and a vector of 
     # the number of rows returned by each query for the next 40% of the users 
     most_similar_queries = getMostSimilarQueriesClustering(relational_table, queryDataset)
     num_rows_per_query = getNumRows(relational_table, queryDataset)
 
-    # for loops for each user type
+    ##### PART 1
     for usr in propUsersArray:
         userType = 0
         utilityMatrix.append(getUserGrades(input_rows, q_rows, userType, most_similar_queries, num_rows_per_query))
@@ -265,6 +211,17 @@ def utilityMatrixGenerator(userArray, queryDataset, relational_table, sparsity =
     for usr in randomUsersArray:
         userType = 2
         utilityMatrix.append(getUserGrades(input_rows, q_rows, userType, most_similar_queries, num_rows_per_query))
+
+    ##### PART 2
+    scales = [(1,25), (25,50), (50, 75), (75,100), (1,50), (50,100), (1,100)]
+
+    np.random.shuffle(shuffled_user_array) # shuffle the user array again
+    user_categories = np.array_split(shuffled_user_array, 7)
+    for user_category_i in range(len(user_categories)):
+        for user in user_categories[user_category_i]:
+            user_id = int(user.replace("user", "")) - 1
+            utilityMatrix[user_id] = gradeNormalzation(np.asarray(utilityMatrix[user_id]), scales[user_category_i][0], scales[user_category_i][1])
+
 
     columns_label = ["Q" + str(i) for i in range(q_rows)] 
 
@@ -276,8 +233,6 @@ def utilityMatrixGenerator(userArray, queryDataset, relational_table, sparsity =
         utilityMatrix[row][column] = ''
 
     utilityDataset = pd.DataFrame(utilityMatrix, columns=columns_label, index=userArray)
-    utilityDataset = utilityDataset.sample(frac=1)
-
     csvSaver(dataName="UtilityDataset.csv", dataset=utilityDataset, header=True, index=True)
 
     return utilityDataset

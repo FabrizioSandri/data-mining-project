@@ -145,7 +145,6 @@ def getQueriesClusters(relational_table, query_set):
 
   kmeans = KMeans(n_clusters=20, random_state=42) 
   kmeans.fit(queries)
-  print(kmeans.labels_)
 
   return(kmeans.labels_)
 
@@ -176,8 +175,9 @@ if __name__=='__main__':
   relational_table = pd.read_csv("Dataset/dataFolder/RelationaTable_make_blobs.csv")
   relational_table = relational_table.convert_dtypes()
 
-  getQueriesClusters(relational_table, query_set) 
-  
+  clusters = getQueriesClusters(relational_table, query_set) 
+  print(clusters)
+
   print("The dataset is made of a total of %d queries, of which %d returns at least one row" % (query_set.shape[0], countNonEmptyQueries(relational_table, query_set)))
   print("The dataset queries returns an average of %d rows" % (averageRowsReturned(relational_table, query_set)))
   

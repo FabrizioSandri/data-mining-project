@@ -2,52 +2,51 @@
 
 import pandas as pd
 import numpy as np
-import random
 from .datasetUtility import csvSaver
 
 '''
-This function generate the dataset of the queries by taking
-percentage_of_max_conditions as max conditions per query, the percentage is low
-in order to have many results with high numbers of answers. the function choose
-a random row of the relational table, select few columns to set the conditions,
-and then save the query as a row of the query matrix. first column of the matrix
-is teh query iD. others are the columns of the relational table, if a condition
-is set the row + column will have the value of the condition, "" blank otherwise
+This function generate the queries as a set of pseudo-random conditions.
 
 Arguments:
     relational_table: the pandas dataframe containing the relational table
-    queryMatrixRows: how many queries to generate
-    percentage_of_max_conditions: ...
+    numQueries: how many queries to generate
+    max_conditions: the maximum number of conditions for a single query.
     real: specify whether the generated dataset should be real or synthetic
 
 Returns:
     The query set as a pandas dataframe
 '''
-def generateQueryDataset(relational_table, queryMatrixRows, percentage_of_max_conditions = 0.05, real = False):
+def generateQueryDataset(relational_table, numQueries, max_conditions = 20, real = False):
 
-    inputRows, inputColumns = relational_table.shape
-    queryMatrix = []
-    for row in range(queryMatrixRows):
-        query = [""] * inputColumns # fill the query feature with inputColumns blanks
-        nConditions = random.randint(1, int(percentage_of_max_conditions*inputColumns))
-        tableRow = random.randint(1, inputRows-1)
-        for j in range(nConditions):
-            col = random.randint(1, inputColumns-1)
-            query[col] = relational_table.iloc[tableRow][col]
-        queryMatrix.append(query)
+    rows, features = relational_table.shape
+    q_set = []
+    for queries in range(numQueries):
+        query_conditions = []
+        num_conditions = np.random.randint(0, max_conditions)
+
+        for _ in range(num_conditions): 
+            random_feature = np.random.randint(0, features)
+
+            # The value assigned to the feature is randomly chosen from the
+            # relational table values for that column with a probability of 99%,
+            # and with the remaining probability of 1% the value is chosen
+            # randomly(if a numeric feature, a value between 0 an 1000,
+            # otherwise a float value)
+            if np.random.rand() < 0.99:
+                random_feature_value = relational_table.loc[np.random.randint(0,rows), "F"+str(random_feature)] 
+            else:
+                if pd.api.types.is_numeric_dtype(relational_table["F"+str(random_feature)]):
+                    random_feature_value = np.random.randint(0,1000)
+                else:
+                    random_feature_value = np.random.rand()
+
+            condition = "F" + str(random_feature) + "=" + str(random_feature_value)
+            query_conditions.append(condition)
+            
+        q_set.append(query_conditions)
 
 
-    # generate the request querydataset
-    q_set = []    
-    for i in range(len(queryMatrix)):
-        q_set_row = []
-        for j in range(len(queryMatrix[1])):
-            if(queryMatrix[i][j] != ""):
-                condition = "F"+str(j-1)+"="+str(queryMatrix[i][j])
-                q_set_row.append(condition)
-        q_set.append(q_set_row)
-
-    indexes = ["Q" + str(i) for i in range(queryMatrixRows)]
+    indexes = ["Q" + str(i) for i in range(numQueries)]
     queryDataset = pd.DataFrame(q_set, index=indexes)
     csv_file_name = "QueriesDataset_Real.csv" if real else "QueriesDataset_Syntethic.csv"
     csvSaver(dataName=csv_file_name, dataset=queryDataset, header=False, index=True)
@@ -71,23 +70,23 @@ Returns:
   doesn't return anything the result is an empty list: no row has been returned.
 '''
 def queryResultsIds(query, relational_table, query_set):
-  result_rows = np.full((relational_table.shape[0]), True)
+    result_rows = np.full((relational_table.shape[0]), True)
 
-  query_full_row = query_set.loc["Q"+str(query)]
-  query_conditions = query_full_row[~pd.isna(query_full_row)].tolist() # remove NAN conditions
-  for condition in query_conditions:
-    splitted = condition.split("=")
-    cond_var = splitted[0]
-    cond_val = splitted[1]
+    query_full_row = query_set.loc["Q"+str(query)]
+    query_conditions = query_full_row[~pd.isna(query_full_row)].tolist() # remove NAN conditions
+    for condition in query_conditions:
+        splitted = condition.split("=")
+        cond_var = splitted[0]
+        cond_val = splitted[1]
 
-    if pd.api.types.is_numeric_dtype(relational_table[cond_var]):
-      result_rows = result_rows & (relational_table[cond_var] == float(cond_val)).to_numpy()
-    else:
-      result_rows = result_rows & (relational_table[cond_var] == cond_val).to_numpy()
+        if pd.api.types.is_numeric_dtype(relational_table[cond_var]):
+            result_rows = result_rows & (relational_table[cond_var] == float(cond_val)).to_numpy()
+        else:
+            result_rows = result_rows & (relational_table[cond_var] == cond_val).to_numpy()
+    
+    row_ids = np.where(result_rows != False)
+    return row_ids[0]
 
-  row_ids = np.where(result_rows != False)
-  return row_ids[0]
-  
 
 
 def querySimilarity(relational_table, query1, query2, threshold = 0.4):

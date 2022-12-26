@@ -155,7 +155,7 @@ def gradeNormalzation(user_ratings, low, high):
     norm += low
     norm = np.round(norm)
 
-    return norm
+    return list(norm)
 
 
 '''
@@ -221,7 +221,6 @@ def utilityMatrixGenerator(userArray, queryDataset, relational_table, sparsity =
         for user in user_categories[user_category_i]:
             user_id = int(user.replace("user", "")) - 1
             utilityMatrix[user_id] = gradeNormalzation(np.asarray(utilityMatrix[user_id]), scales[user_category_i][0], scales[user_category_i][1])
-
 
     columns_label = ["Q" + str(i) for i in range(q_rows)] 
 

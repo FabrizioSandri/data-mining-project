@@ -134,7 +134,7 @@ Returns:
   The labels assigned by k-means to each query
 '''
 def getQueriesClusters(relational_table, query_set):
-
+  K = 20
   queries = []
 
   for query_id in range(query_set.shape[0]):
@@ -143,10 +143,25 @@ def getQueriesClusters(relational_table, query_set):
     result_rows[returned_rows_ids] = 1
     queries.append(result_rows)
 
-  kmeans = KMeans(n_clusters=20, random_state=42) 
+  kmeans = KMeans(n_clusters=K, random_state=42) 
   kmeans.fit(queries)
 
-  return(kmeans.labels_)
+  # generate a dictionary of query clsuters
+  clusters = {}
+  for i in range(K):
+    clusters[i] = []
+
+  for query_i in range(len(kmeans.labels_)):
+    label = kmeans.labels_[query_i]
+    clusters[label].append(query_i)
+
+  # generate most_similar dictionary
+  most_similar = {}
+  for cluster_i in range(K):
+    for query_i in clusters[cluster_i]:
+      most_similar[query_i] = [query_j for query_j in clusters[cluster_i]]        
+
+  return(most_similar)
 
 
 '''

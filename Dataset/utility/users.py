@@ -110,11 +110,12 @@ def getUserGrades(num_reational_table_rows, num_queries, userType, most_similar,
     if userType == 0: # rate similar queries
         for i in range(num_queries):
             similar_ratings = []
-            for similar_query in most_similar[i]:
-                if user_ratings[similar_query] != '': # the user has already rated a similar query
-                    similar_ratings.append(user_ratings[similar_query])
+            if num_rows[i] > 0:
+                for similar_query in most_similar[i]:
+                    if user_ratings[similar_query] != '': # the user has already rated a similar query
+                        similar_ratings.append(user_ratings[similar_query])
             
-            if len(similar_ratings) == 0: # the user has not rated any similar query: random rating
+            if len(similar_ratings) == 0 or num_rows[i]==0: # the user has not rated any similar query or the query does not return any output: random rating
                 user_ratings[i] = np.random.randint(1,101)
             else:
                 user_ratings[i] = int(np.floor(np.mean(similar_ratings) + np.random.uniform(-5,5)))  # assign a rating that differ from the most similar by at most -5 and +5

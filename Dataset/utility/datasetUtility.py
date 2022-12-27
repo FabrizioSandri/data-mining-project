@@ -11,6 +11,7 @@ def importCSV(path):
 
 def csvSaver(dataName, dataset, header, index):
     path = "Dataset/dataFolder/"+dataName
+    dataset = dataset.convert_dtypes()
     dataset.to_csv(path, header=header, index=index)
 
 def generateRelationalTable(rows, columns, typeDataset="make_blobs"):

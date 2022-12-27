@@ -101,16 +101,15 @@ similar_items = lsh.lsh(signature_matrix, rows_per_band=15)
 
 
 # find the K-most similar queries for each query
-K = 10 
-T = 10
+K = 20 
 
-logger.info("Retrieving k and t most similar")
-
+logger.info("Retrieving k most similar")
 k_most_similar = rec.get_k_most_similar_queries_utility(K, utility, similar_items, "cosine")
-t_most_similar = rec.get_t_most_similar_queries_content(T, similar_items, relational_table, query_set)
+
+
 logger.info("Retrivieng utility prediction")
 predicted_utility_k = rec.predictAsAverage(utility, k_most_similar)
-predicted_utility_t = rec.predictAsAverage(utility, t_most_similar)
+predicted_utility_content = rec.hybridRecommendation(utility, relational_table, query_set, k_most_similar)
 
 
 # dump the predicted utility matrix to file
@@ -120,7 +119,7 @@ predicted_utility_df.columns = utility_df.keys()
 predicted_utility_df.index = utility_df.index
 predicted_utility_df.to_csv("predicted_LSH_only.csv")
 
-predicted_utility_df = pd.DataFrame(predicted_utility_t)
+predicted_utility_df = pd.DataFrame(predicted_utility_content)
 predicted_utility_df.columns = utility_df.keys()
 predicted_utility_df.index = utility_df.index
 predicted_utility_df.to_csv("predicted_LSH_content.csv")

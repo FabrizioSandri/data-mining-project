@@ -524,16 +524,15 @@ def evaluate_prediction(original_utility, test_size, similarity, relational_tabl
 
   # compute the missing ratings
   K = 20 
-  T = 10
+  T = 5
 
   k_most_similar = rec.get_k_most_similar_queries_utility(K, utility, similar_items, similarity)
-  t_most_similar = rec.get_t_most_similar_queries_content(T, k_most_similar, relational_table, query_set)
   predicted_utility_k = rec.predictAsAverage(utility, k_most_similar)
-  predicted_utility_t = rec.predictAsAverage(utility, t_most_similar)
+  predicted_utility_content = rec.hybridRecommendation(utility, relational_table, query_set, k_most_similar)
   predicted_utility_random = np.random.randint(1,101, utility.shape) # predict with random values
 
   avg_error_only_lsh = rmse(original_utility[test_mask], predicted_utility_k[test_mask])
-  avg_error_lsh_content = rmse( original_utility[test_mask], predicted_utility_t[test_mask])
+  avg_error_lsh_content = rmse( original_utility[test_mask], predicted_utility_content[test_mask])
   avg_error_random = rmse( original_utility[test_mask], predicted_utility_random[test_mask])
 
   return(avg_error_only_lsh, avg_error_lsh_content, avg_error_random)

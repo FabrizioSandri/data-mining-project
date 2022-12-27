@@ -16,13 +16,13 @@ logging.basicConfig(stream = sys.stdout,
 
 logger = logging.getLogger()
 
-sparsity = 0.3
+sparsity = 0.6
 
 def synthetic():
     logger.info("User dataset generation")
     userArray = userGenerator(500)
     logger.info("Relational Table generation")
-    relational_table = generateRelationalTable(50000, 100)
+    relational_table = generateRelationalTable(10000, 100)
     logger.info("Query DataSets Generation")
     queryDataset = generateQueryDataset(relational_table, 1000, 10, False)
     logger.info("Utility Matrix DataSets Generation")

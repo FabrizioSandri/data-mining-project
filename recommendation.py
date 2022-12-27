@@ -37,6 +37,34 @@ def get_k_most_similar_queries_utility(K, utility, similar_items, similarity="co
 
   return k_most_similar
 
+'''
+This function returns a utility matrix filled with the missing ratings by taking
+the average of the most similar queries that a user has rated, according to 
+
+Arguments:
+  utility: the utility matrix
+  similar_items: a dictionary containing the similar items found by LSH 
+    (for collaborative filtering with LSH only) or the similar items found by 
+    the combination of collaborative filtering + content based(hybrid)
+  
+Returns:
+  The utility matrix with the filled missing ratings 
+'''
+def predictAsAverage(utility, most_similar):
+  predicted_utility = utility.copy()
+
+  # now the recommendation system computes the missing values as the average of 
+  # the K most similar queries 
+  for query in range(predicted_utility.shape[1]):
+    for user in range(predicted_utility.shape[0]):
+      if predicted_utility[user, query] == 0:
+        if len(most_similar[query]) > 0:
+          similar_ratings = [predicted_utility[user,j] for j in most_similar[query]]
+          predicted_utility[user, query] = round(np.mean(similar_ratings))
+        else:
+          predicted_utility[user, query] = np.random.randint(1,101) # if no similar query is found predict with a random value
+
+  return predicted_utility
 
 ############################## CONTENT BASED ###################################
 
@@ -75,91 +103,145 @@ def getRowsIds(query, relational_table, query_set):
   return row_ids[0]
   
 
-
 '''
-This function find the top-T similar queries by looking at their content. The 
-idea is that two queries A and B should be considered more than A with C if 
-A and B have more tuples in common than the tuples in common between A and C
+This function generates the item profile for each query, which is a vector with
+the size of the number of rows of the relational table, filled with 1 in 
+correspondence with the rows that were returned by the query specified
 
 Arguments:
-  T: the number of most similar queries to find for each query(this number must
-    be smaller than K)
-  potential_queries: the list of potential similar queries for each query 
+  query: the id of the query without the "Q" prefix
   relational_table: the pandas dataframe containing the relational table
   query_set: the pandas dataframe containing the description of the queries sent
     by the users
-  
+
 Returns:
-  A dictionary of the top T most similar queries for each query in the utility
-  matrix
+  An item profile for the query given as input
 '''
-def get_t_most_similar_queries_content(T, potential_queries, relational_table, query_set):
-  t_most_similar = {}
+def getItemProfile(query, relational_table, query_set):
+  num_rows = relational_table.shape[0]
+  item_profile = np.asarray([0] * num_rows)
+
+  returned_row_ids = getRowsIds(query, relational_table, query_set)
+  item_profile[returned_row_ids] = 1
+
+  return item_profile
+
+
+'''
+This fun
+'''
+def getUserProfile(userId, utility, relational_table, query_set, queries_returning_row):
+  num_rows = relational_table.shape[0]
   num_queries = query_set.shape[0]
+  user_profile = np.asarray([0] * num_rows)
+
+  userRating = []
+  for rating in utility[userId]:
+    if rating != 0 :
+      userRating.append(rating)
+
+  avgUserRating = int(np.round(np.mean(userRating)))
+
+  for row_i in range(num_rows):
+    row_ratings = [] # ratings of the specified user to the row `row_i`
+    queries_returning_row_i = queries_returning_row[row_i]
+
+    for query in queries_returning_row_i:
+      if utility[userId,query] != 0: # the user has rated the query
+        row_ratings.append(utility[userId,query])
+
+    row_ratings = np.asarray(row_ratings) - avgUserRating # subtract the average rating of the user
+
+    if len(row_ratings) == 0:
+      avg_row_rating = 0
+    else:
+      avg_row_rating = np.mean(row_ratings)
+
+    user_profile[row_i] = avg_row_rating
+
+  return user_profile
+
+'''
+This function returns a dictionary where each key of the dictionary is a row of 
+the relational table and the value is a list of queries that returned that row
+
+Arguments:
+  relational_table: the pandas dataframe containing the relational table
+  query_set: the pandas dataframe containing the description of the queries sent
+    by the users
+
+Returns:
+  A dictionary as described above
+'''
+def getQueriesReturningRow(relational_table, query_set):
+  num_rows = relational_table.shape[0]
+  num_queries = query_set.shape[0]
+  
+  row_queries = {} # dictionary returning for each row of the relational table the queries that returned it
+
+  for row in range(num_rows):
+    row_queries[row] = []
 
   # find the rows returned by each query to avoid recomputing them several times
-  row_ids = {}
+
   for q in range(num_queries):
-    row_ids[q] = getRowsIds(q, relational_table, query_set)
-  num_rows = [len(row_ids[q]) for q in range(num_queries)]
+    row_ids = getRowsIds(q, relational_table, query_set)
+    for row in row_ids:
+      row_queries[row].append(q)
 
-  # iterator on the potential queries to extract the T most similar queries 
-  # based on their content
-  for query in range(num_queries):
-    queries_in_common = []
-    num_rows_queries = []
-    rows_of_query = row_ids[query] # get the ids of the rows returned by query
-
-    for i in potential_queries[query]: 
-      rows_of_query_i = row_ids[i]
-      queries_in_common.append(len(np.intersect1d(rows_of_query, rows_of_query_i)))
-      num_rows_queries.append(num_rows[i])
-
-    t_most_similar[query] = []
-    T_same_rows = int(np.floor(T/2))
-    T_num_rows = T - T_same_rows
-
-    if len(potential_queries[query]) > 0:
-      # rate based on the rows in common
-      most_similar_query_i = np.argsort(queries_in_common)[-min(T_same_rows,len(queries_in_common)-1):]
-      for i in most_similar_query_i:
-        t_most_similar[query].append(list(potential_queries[query])[i])
-        
-      # rate based on the number of rows
-      most_similar_query_i = np.argsort(num_rows_queries)[-min(T_num_rows,len(num_rows_queries)-1):]
-      for i in most_similar_query_i:
-        t_most_similar[query].append(list(potential_queries[query])[i])
-        
-  return t_most_similar
+  return row_queries
 
 
 ########################## HYBRID RECOMMENDATION ###############################
 
-'''
-This function returns a utility matrix filled with the missing ratings by taking
-the average of the most similar queries that a user has rated, according to 
 
-Arguments:
-  utility: the utility matrix
-  similar_items: a dictionary containing the similar items found by LSH 
-    (for collaborative filtering with LSH only) or the similar items found by 
-    the combination of collaborative filtering + content based(hybrid)
-  
-Returns:
-  The utility matrix with the filled missing ratings 
-'''
-def predictAsAverage(utility, most_similar):
+
+def hybridRecommendation(utility, relational_table, query_set, most_similar):
   predicted_utility = utility.copy()
+  num_queries = query_set.shape[0]
+  num_users = predicted_utility.shape[0]
 
-  # now the recommendation system computes the missing values as the average of 
-  # the K most similar queries 
-  for query in range(predicted_utility.shape[1]):
-    for user in range(predicted_utility.shape[0]):
+  item_profile = {}
+  user_profile = {}
+
+  print("Computing the item profiles(query profiles)")
+  for query in range(num_queries):
+    item_profile[query] = getItemProfile(query, relational_table, query_set)
+
+  print("Computing the user profiles")
+  queries_returning_row = getQueriesReturningRow(relational_table, query_set)
+  for user in range(num_users):
+    print(user)
+    user_profile[user] = getUserProfile(user, utility, relational_table, query_set, queries_returning_row)
+
+  print("Finished to compute the profiles")
+
+  for user in range(num_users):  # iterate over all the cell of the utility matrix that are empty
+    print("Predicting missing ratings for user%d" % (user+1))
+    for query in range(num_queries):    
       if predicted_utility[user, query] == 0:
-        if len(most_similar[query]) > 0:
-          similar_ratings = [predicted_utility[user,j] for j in most_similar[query]]
-          predicted_utility[user, query] = round(np.mean(similar_ratings))
-        else:
-          predicted_utility[user, query] = np.random.randint(1,101) # if no similar query is found predict with a random value
+        
+        most_similar_query_sim = []
+        for similar_query in most_similar[query]:
+          most_similar_query_sim.append(sim.cosine_similarity(user_profile[user], item_profile[similar_query]))
+        
+        # find the most similar query that should be recommended to the user
+        # using content based recommendation combined with collaborative 
+        # filtering. The idea is to compare the user profile with the item 
+        # profile only with the potentially similar query found by collaborative 
+        # filtering with LSH, avoiding in this way to compare all the item 
+        # profiles with all the user profiles
+        most_similar_query_i = np.argsort(most_similar_query_sim)
+        K = len(most_similar[query])
+        for ki in range(K):
+          most_similar_i = K - 1 - ki
+          most_similar_query = list(most_similar[query])[most_similar_query_i[most_similar_i]]
+          if utility[user, most_similar_query] != 0:
+            predicted_utility[user, query] = utility[user, most_similar_query]
+            break
 
+        if predicted_utility[user, query] == 0:
+          predicted_utility[user, query] = np.random.randint(1,101) # if no similar query is found predict with a random value
+          
   return predicted_utility
+

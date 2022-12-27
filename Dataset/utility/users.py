@@ -110,12 +110,11 @@ def getUserGrades(num_reational_table_rows, num_queries, userType, most_similar,
     if userType == 0: # rate similar queries
         for i in range(num_queries):
             similar_ratings = []
-            if num_rows[i] > 0:
-                for similar_query in most_similar[i]:
-                    if user_ratings[similar_query] != '': # the user has already rated a similar query
-                        similar_ratings.append(user_ratings[similar_query])
+            for similar_query in most_similar[i]:
+                if user_ratings[similar_query] != '': # the user has already rated a similar query
+                    similar_ratings.append(user_ratings[similar_query])
             
-            if len(similar_ratings) == 0 or num_rows[i]==0: # the user has not rated any similar query or the query does not return any output: random rating
+            if len(similar_ratings) == 0 or num_rows[i]==0: # the user has not rated any similar query or the query doesn't return any output: random rating
                 user_ratings[i] = np.random.randint(1,101)
             else:
                 user_ratings[i] = int(np.floor(np.mean(similar_ratings) + np.random.uniform(-5,5)))  # assign a rating that differ from the most similar by at most -5 and +5
@@ -131,7 +130,7 @@ def getUserGrades(num_reational_table_rows, num_queries, userType, most_similar,
             elif num_rows[i] < np.floor(num_reational_table_rows * 0.25):
                 user_ratings[i] = np.random.randint(50,75)
             else:
-                user_ratings[i] = np.random.randint(75,100)
+                user_ratings[i] = np.random.randint(75,101)
 
     else: # random rating users
         for i in range(num_queries):
@@ -181,16 +180,16 @@ def utilityMatrixGenerator(userArray, queryDataset, relational_table, sparsity =
     np.random.shuffle(shuffled_user_array)
 
     # split the users into three categories:
-    # - 50% of users who vote similar queries with approximately the same ratings
-    # - 40% of users who rate queries based on the number of rows returned
+    # - 60% of users who vote similar queries with approximately the same ratings
+    # - 30% of users who rate queries based on the number of rows returned
     # - 10% of users who rate queries randomly
-    propUsers = int(np.floor(nUsers * 0.4))
-    simGradUsers = int(np.floor(nUsers * 0.5))
+    simGradUsers = int(np.floor(nUsers * 0.6))
+    propUsers = int(np.floor(nUsers * 0.3))
     randomUsers = nUsers - propUsers - simGradUsers # the remaining users (aprox 10%)
 
     # splitting the shuffled user array
-    propUsersArray = shuffled_user_array[0:propUsers]
-    simGradUsersArray = shuffled_user_array[propUsers:propUsers+simGradUsers]
+    simGradUsersArray = shuffled_user_array[0:simGradUsers]
+    propUsersArray = shuffled_user_array[simGradUsers:simGradUsers+propUsers]
     randomUsersArray = shuffled_user_array[propUsers+simGradUsers:nUsers]
 
     input_rows, input_columns = relational_table.shape
@@ -203,10 +202,10 @@ def utilityMatrixGenerator(userArray, queryDataset, relational_table, sparsity =
     num_rows_per_query = getNumRows(relational_table, queryDataset)
 
     ##### PART 1
-    for usr in propUsersArray:
+    for usr in simGradUsersArray:
         userType = 0
         utilityMatrix.append(getUserGrades(input_rows, q_rows, userType, most_similar_queries, num_rows_per_query))
-    for usr in simGradUsersArray:
+    for usr in propUsersArray:
         userType = 1
         utilityMatrix.append(getUserGrades(input_rows, q_rows, userType, most_similar_queries, num_rows_per_query))
     for usr in randomUsersArray:
@@ -217,7 +216,7 @@ def utilityMatrixGenerator(userArray, queryDataset, relational_table, sparsity =
     scales = [(1,25), (25,50), (50, 75), (75,100), (1,50), (50,100), (1,100)]
 
     np.random.shuffle(shuffled_user_array) # shuffle the user array again
-    user_categories = np.array_split(shuffled_user_array, 7)
+    user_categories = np.array_split(shuffled_user_array, len(scales))
     for user_category_i in range(len(user_categories)):
         for user in user_categories[user_category_i]:
             user_id = int(user.replace("user", "")) - 1
@@ -225,7 +224,7 @@ def utilityMatrixGenerator(userArray, queryDataset, relational_table, sparsity =
 
     columns_label = ["Q" + str(i) for i in range(q_rows)] 
 
-    #generate sparsity
+    # generate sparsity
     sparsity_amount = int(np.floor(sparsity * nUsers * q_rows))   
     for i in range(sparsity_amount):
         row = np.random.randint(0, nUsers)

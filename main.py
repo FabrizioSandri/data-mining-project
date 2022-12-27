@@ -114,15 +114,22 @@ predicted_utility_t = rec.predictAsAverage(utility, t_most_similar)
 
 
 # dump the predicted utility matrix to file
+# dump the predicted utility matrix to file
 predicted_utility_df = pd.DataFrame(predicted_utility_k)
 predicted_utility_df.columns = utility_df.keys()
 predicted_utility_df.index = utility_df.index
-predicted_utility_df.to_csv("predicted.csv")
+predicted_utility_df.to_csv("predicted_LSH_only.csv")
 
-logger.info("Done with the algorithms")
+predicted_utility_df = pd.DataFrame(predicted_utility_t)
+predicted_utility_df.columns = utility_df.keys()
+predicted_utility_df.index = utility_df.index
+predicted_utility_df.to_csv("predicted_LSH_content.csv")
+
 
 ################################################################################
 # In this part we evaluate the results found by the recommendation system 
+logger.info("Starting with the evaluation")
+
 avg_error_only_lsh, avg_error_lsh_content, avg_error_random = ev.evaluate_prediction(original_utility, 0.01, "cosine", relational_table, query_set)
 
 print("The predicted ratings using only LSH differ from the real ones by an average of %f" % avg_error_only_lsh)

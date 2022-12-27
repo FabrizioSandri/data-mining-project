@@ -523,11 +523,11 @@ def evaluate_prediction(original_utility, test_size, similarity, relational_tabl
 
 
   # compute the missing ratings
-  K = 10 
+  K = 20 
   T = 10
 
   k_most_similar = rec.get_k_most_similar_queries_utility(K, utility, similar_items, similarity)
-  t_most_similar = rec.get_t_most_similar_queries_content(T, similar_items, relational_table, query_set)
+  t_most_similar = rec.get_t_most_similar_queries_content(T, k_most_similar, relational_table, query_set)
   predicted_utility_k = rec.predictAsAverage(utility, k_most_similar)
   predicted_utility_t = rec.predictAsAverage(utility, t_most_similar)
   predicted_utility_random = np.random.randint(1,101, utility.shape) # predict with random values

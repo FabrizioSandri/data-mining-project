@@ -84,9 +84,7 @@ A and B have more tuples in common than the tuples in common between A and C
 Arguments:
   T: the number of most similar queries to find for each query(this number must
     be smaller than K)
-  k_most_similar: the K most similar queries for each query in the utility 
-    matrix returned by the function the get_k_most_similar_queries_utility that 
-    returns the similar queries according to collaborative filtering + LSH
+  potential_queries: the list of potential similar queries for each query 
   relational_table: the pandas dataframe containing the relational table
   query_set: the pandas dataframe containing the description of the queries sent
     by the users
@@ -95,29 +93,43 @@ Returns:
   A dictionary of the top T most similar queries for each query in the utility
   matrix
 '''
-def get_t_most_similar_queries_content(T, k_most_similar, relational_table, query_set):
+def get_t_most_similar_queries_content(T, potential_queries, relational_table, query_set):
   t_most_similar = {}
-  
+  num_queries = query_set.shape[0]
+
   # find the rows returned by each query to avoid recomputing them several times
   row_ids = {}
-  for q in range(len(k_most_similar)):
+  for q in range(num_queries):
     row_ids[q] = getRowsIds(q, relational_table, query_set)
+  num_rows = [len(row_ids[q]) for q in range(num_queries)]
 
-  # iterator on the K most similar queries to extract the T<K most similar 
-  # queries based on their content
-  for query in range(len(k_most_similar)):
+  # iterator on the potential queries to extract the T most similar queries 
+  # based on their content
+  for query in range(num_queries):
     queries_in_common = []
+    num_rows_queries = []
     rows_of_query = row_ids[query] # get the ids of the rows returned by query
 
-    for i in k_most_similar[query]: 
+    for i in potential_queries[query]: 
       rows_of_query_i = row_ids[i]
       queries_in_common.append(len(np.intersect1d(rows_of_query, rows_of_query_i)))
+      num_rows_queries.append(num_rows[i])
 
     t_most_similar[query] = []
-    if len(k_most_similar[query]) > 0:
-      most_similar_query_i = np.argsort(queries_in_common)[-min(T,len(queries_in_common)-1):]
-      t_most_similar[query] =  [list(k_most_similar[query])[i] for i in most_similar_query_i]
+    T_same_rows = int(np.floor(T/2))
+    T_num_rows = T - T_same_rows
 
+    if len(potential_queries[query]) > 0:
+      # rate based on the rows in common
+      most_similar_query_i = np.argsort(queries_in_common)[-min(T_same_rows,len(queries_in_common)-1):]
+      for i in most_similar_query_i:
+        t_most_similar[query].append(list(potential_queries[query])[i])
+        
+      # rate based on the number of rows
+      most_similar_query_i = np.argsort(num_rows_queries)[-min(T_num_rows,len(num_rows_queries)-1):]
+      for i in most_similar_query_i:
+        t_most_similar[query].append(list(potential_queries[query])[i])
+        
   return t_most_similar
 
 
@@ -142,7 +154,6 @@ def predictAsAverage(utility, most_similar):
   # now the recommendation system computes the missing values as the average of 
   # the K most similar queries 
   for query in range(predicted_utility.shape[1]):
-    print("Predicting missing ratings for query %d" % query)
     for user in range(predicted_utility.shape[0]):
       if predicted_utility[user, query] == 0:
         if len(most_similar[query]) > 0:

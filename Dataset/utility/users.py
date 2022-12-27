@@ -233,7 +233,7 @@ def utilityMatrixGenerator(userArray, queryDataset, relational_table, sparsity =
         utilityMatrix[row][column] = ''
 
     utilityDataset = pd.DataFrame(utilityMatrix, columns=columns_label, index=userArray)
-    csvSaver(dataName="UtilityDataset.csv", dataset=utilityDataset, header=True, index=True)
+    csvSaver(dataName="UtilityDataset_Synthetic.csv", dataset=utilityDataset, header=True, index=True)
 
     return utilityDataset
 

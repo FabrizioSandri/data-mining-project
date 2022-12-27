@@ -8,7 +8,25 @@ import pandas as pd
 import time
 import matplotlib.pyplot as plt
 
+
+import logging
+import sys
+
+#Creating and Configuring Logger
+
+Log_Format = "%(levelname)s %(asctime)s - %(message)s"
+
+logging.basicConfig(stream = sys.stdout, 
+                    filemode = "w",
+                    format = Log_Format, 
+                    level = logging.INFO)
+
+logger = logging.getLogger()
+
 #### VARIABLES
+
+logger.info("Importing Datasets")
+
 utility_df = pd.read_csv("Dataset/dataFolder/UtilityDataset_Synthetic.csv", index_col=0)
 utility_df.fillna(0, inplace=True)
 
@@ -20,6 +38,8 @@ relational_table = relational_table.convert_dtypes()
 utility = utility_df.to_numpy()
 original_utility = utility.copy()
 
+logger.info("Imports DONE")
+
 ################################################################################
 # The following two snippets of code runs LSH with minHash and LSH with simHash
 # on the utility matrix to extract the candidate similar queries of each query.
@@ -29,7 +49,9 @@ original_utility = utility.copy()
 # similar_items = lsh.lsh(signature_matrix, rows_per_band=7)
 
 ### LSH with simHash
+logger.info("Building signature matrix")
 signature_matrix = lsh.simHash(utility_matrix=utility, hyperplanes=400)
+logger.info("Finding Similar items")
 similar_items = lsh.lsh(signature_matrix, rows_per_band=15)
 
 ################################################################################
@@ -45,7 +67,7 @@ similar_items = lsh.lsh(signature_matrix, rows_per_band=15)
 # meaning that the predicted similar items using LSH are exactly the ones found
 # without LSH
 
-
+# logger.info("Start estimation and plots")
 # correctly_estimated, time_to_run, avg_candidates = ev.plot_combined_curve(utility, "cosine")
 
 # i = range(len(correctly_estimated))
@@ -57,18 +79,20 @@ similar_items = lsh.lsh(signature_matrix, rows_per_band=15)
 # plt.legend()
 # plt.grid()
 # plt.show()
-
+# logger.info("Done with estimation")
 ################################################################################
 # This part plots the time complexity of the four algorithms(jaccard similarity
 # without LSH, cosine similarity without LSH, LSH with minHash and LSH with 
 # simHash). 
 
+# logger.info("Start plotting algorithms time complexity")
 # num_queries_j = np.arange(start=100, stop=1100, step=100)
 # num_queries_c = np.arange(start=300, stop=3000, step=200) # test cosine similarity and simhash with more queries
 # num_users = np.arange(start=100, stop=600, step=100)
 
 # ev.plot_time_increase(utility, num_users, num_users, num_queries_j, num_queries_c)
 
+# logger.info("Done with time complexity evaluation")
 
 ################################################################################
 # In this part the recommendation system actually operates and the utility 
@@ -80,8 +104,11 @@ similar_items = lsh.lsh(signature_matrix, rows_per_band=15)
 K = 10 
 T = 10
 
+logger.info("Retrieving k and t most similar")
+
 k_most_similar = rec.get_k_most_similar_queries_utility(K, utility, similar_items, "cosine")
 t_most_similar = rec.get_t_most_similar_queries_content(T, similar_items, relational_table, query_set)
+logger.info("Retrivieng utility prediction")
 predicted_utility_k = rec.predictAsAverage(utility, k_most_similar)
 predicted_utility_t = rec.predictAsAverage(utility, t_most_similar)
 
@@ -92,6 +119,7 @@ predicted_utility_df.columns = utility_df.keys()
 predicted_utility_df.index = utility_df.index
 predicted_utility_df.to_csv("predicted.csv")
 
+logger.info("Done with the algorithms")
 
 ################################################################################
 # In this part we evaluate the results found by the recommendation system 

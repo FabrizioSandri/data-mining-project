@@ -12,19 +12,14 @@ import matplotlib.pyplot as plt
 import logging
 import sys
 
+################################################################################
+
 #Creating and Configuring Logger
-
 Log_Format = "%(levelname)s %(asctime)s - %(message)s"
-
-logging.basicConfig(stream = sys.stdout, 
-                    filemode = "w",
-                    format = Log_Format, 
-                    level = logging.INFO)
-
+logging.basicConfig(stream = sys.stdout, filemode = "w", format = Log_Format, level = logging.INFO)
 logger = logging.getLogger()
 
-#### VARIABLES
-
+#### Import the datasets
 logger.info("Importing Datasets")
 
 utility_df = pd.read_csv("Dataset/dataFolder/UtilityDataset_Synthetic.csv", index_col=0)
@@ -34,103 +29,102 @@ query_set = pd.read_csv("Dataset/dataFolder/QueriesDataset_Syntethic.csv", index
 relational_table = pd.read_csv("Dataset/dataFolder/RelationaTable_make_blobs.csv")
 relational_table = relational_table.convert_dtypes()
 
-
 utility = utility_df.to_numpy()
 original_utility = utility.copy()
 
 logger.info("Imports DONE")
 
 ################################################################################
-# The following two snippets of code runs LSH with minHash and LSH with simHash
-# on the utility matrix to extract the candidate similar queries of each query.
 
-### LSH with minHash
-# signature_matrix = lsh.minHash(utility_matrix=utility, k=400, T=50)
-# similar_items = lsh.lsh(signature_matrix, rows_per_band=7)
 
-### LSH with simHash
-logger.info("Building signature matrix")
-signature_matrix = lsh.simHash(utility_matrix=utility, hyperplanes=400)
-logger.info("Finding Similar items")
-similar_items = lsh.lsh(signature_matrix, rows_per_band=15)
+'''
+This function plots the time complexity of the four algorithms(jaccard
+similarity without LSH, cosine similarity without LSH, LSH with minHash and LSH
+with simHash). 
+'''
+def plotTimeComplexityCurve():
+  logger.info("Start plotting LSH algorithms time complexity")
+  num_queries_j = np.arange(start=100, stop=1100, step=100)
+  num_queries_c = np.arange(start=200, stop=2000, step=100) # test cosine similarity and simhash with more queries
+  num_users = np.arange(start=100, stop=600, step=100)
 
-################################################################################
-# In this part we plot the time to run LSH as well as the number of correctly 
-# estimated similar queries using LSH(compared to the algorithm run without LSH)
-# and we also print the average number of candidate pairs(potential similar
-# items) that LSH finds.
-#
-# As a general rule the average number of candidate pairs should be small in 
-# order to find the smallest number of candidate pairs and make the algorithm 
-# faster. At the same time the number of correctly estimated similar queries 
-# must be the close as possible to the total amount of queries in the dataset:
-# meaning that the predicted similar items using LSH are exactly the ones found
-# without LSH
-
-# logger.info("Start estimation and plots")
-# correctly_estimated, time_to_run, avg_candidates = ev.plot_combined_curve(utility, "cosine")
-
-# i = range(len(correctly_estimated))
-# plt.plot(i,avg_candidates, label="Avg amount of similar candidates")
-# plt.plot(i,correctly_estimated, label="Number of correctly estimated similarities")
-# plt.plot(i,time_to_run, label="Time to find the candidate similar items")
-
-# plt.xlabel("Number of hyperplanes for SimHash")
-# plt.legend()
-# plt.grid()
-# plt.show()
-# logger.info("Done with estimation")
-################################################################################
-# This part plots the time complexity of the four algorithms(jaccard similarity
-# without LSH, cosine similarity without LSH, LSH with minHash and LSH with 
-# simHash). 
-
-# logger.info("Start plotting algorithms time complexity")
-# num_queries_j = np.arange(start=100, stop=1100, step=100)
-# num_queries_c = np.arange(start=300, stop=3000, step=200) # test cosine similarity and simhash with more queries
-# num_users = np.arange(start=100, stop=600, step=100)
-
-# ev.plot_time_increase(utility, num_users, num_users, num_queries_j, num_queries_c)
-
-# logger.info("Done with time complexity evaluation")
+  return ev.plot_time_increase(utility, num_users, num_users, num_queries_j, num_queries_c, logger)
 
 ################################################################################
-# In this part the recommendation system actually operates and the utility 
-# matrix is filled with the missing values, taking the value from the K most 
-# similar query for a user 
+
+'''
+This function fills the blanks of the utility matrix using the LSH method
+specified and using content_based combined with collaborative filtering(hybrid
+recommendation) based on the hybrid parameter.
+
+Arguments:
+  LSH_method: the LSH technique to user, either 'minhash' or 'simhash'
+  hybrid: run content based on top of collaborative filtering
+'''
+def predictUtilityMatrix(LSH_method="simhash", hybrid=True):
+  
+  ### Run LSH
+  logger.info("Running LSH")
+  if LSH_method=="minhash":
+    # LSH with minHash
+    signature_matrix = lsh.minHash(utility_matrix=utility, k=400, T=50)
+    similar_items = lsh.lsh(signature_matrix, rows_per_band=7)
+  else:
+    # LSH with simHash
+    signature_matrix = lsh.simHash(utility_matrix=utility, hyperplanes=400)
+    similar_items = lsh.lsh(signature_matrix, rows_per_band=15)
 
 
-# find the K-most similar queries for each query
-K = 20 
+  ### Run Collaborative filtering
+  logger.info("Running collaborative filtering")
 
-logger.info("Retrieving k most similar")
-k_most_similar = rec.get_k_most_similar_queries_utility(K, utility, similar_items, "cosine")
+  K = 20 
+  k_most_similar = rec.get_k_most_similar_queries_utility(K, utility, similar_items, "cosine")
+
+  ### Run Hybrid recommendation
+  if hybrid: # run alsocontent based
+    logger.info("Running content based")
+    predicted_utility = rec.hybridRecommendation(utility, relational_table, query_set, k_most_similar)
+  else: # run only collaborative filtering taking the average of the k-most similar queries
+    predicted_utility = rec.predictAsAverage(utility, k_most_similar)
 
 
-logger.info("Retrivieng utility prediction")
-predicted_utility_k = rec.predictAsAverage(utility, k_most_similar)
-predicted_utility_content = rec.hybridRecommendation(utility, relational_table, query_set, k_most_similar)
+  ### dump the predicted utility matrix to file
+  logger.info("Saving the predicted utility matrix as file predicted_utility.csv")
+  predicted_utility_df = pd.DataFrame(predicted_utility)
+  predicted_utility_df.columns = utility_df.keys()
+  predicted_utility_df.index = utility_df.index
+  predicted_utility_df.to_csv("predicted_utility.csv")
+
+################################################################################
 
 
-# dump the predicted utility matrix to file
-# dump the predicted utility matrix to file
-predicted_utility_df = pd.DataFrame(predicted_utility_k)
-predicted_utility_df.columns = utility_df.keys()
-predicted_utility_df.index = utility_df.index
-predicted_utility_df.to_csv("predicted_LSH_only.csv")
+'''
+This function evaluates the results found by the recommendation system 
+'''
+def evaluatePredictions(test_size):
+  
+  logger.info("Starting with the evaluation of the results")
+  avg_error_only_lsh, avg_error_lsh_content, avg_error_random = ev.evaluate_prediction(original_utility, test_size, "cosine", relational_table, query_set)
 
-predicted_utility_df = pd.DataFrame(predicted_utility_content)
-predicted_utility_df.columns = utility_df.keys()
-predicted_utility_df.index = utility_df.index
-predicted_utility_df.to_csv("predicted_LSH_content.csv")
+  print("The predicted ratings using only LSH differ from the real ones by an average of %f" % avg_error_only_lsh)
+  print("The predicted ratings using LSH + content based differ from the real ones by an average of %f" % avg_error_lsh_content)
+  print("The predicted ratings differ from the randomly generated predictions by an average of %f" % avg_error_random)
 
 
 ################################################################################
-# In this part we evaluate the results found by the recommendation system 
-logger.info("Starting with the evaluation")
 
-avg_error_only_lsh, avg_error_lsh_content, avg_error_random = ev.evaluate_prediction(original_utility, 0.01, "cosine", relational_table, query_set)
+if __name__=='__main__':
 
-print("The predicted ratings using only LSH differ from the real ones by an average of %f" % avg_error_only_lsh)
-print("The predicted ratings using LSH + content based differ from the real ones by an average of %f" % avg_error_lsh_content)
-print("The predicted ratings differ from the randomly generated predictions by an average of %f" % avg_error_random)
+  logger.info("Starting DataSets Generation Phase")
+  command = input("Select the operation you want to do:\n[1] Fill the blanks of the utility matrix using the Hybrid recommendation system(LSH + CF + Content based)\n[2] Evaluate the performance of LSH wrt the performance of running the algorithm without LSH\n[3] Compare the RMSE of running the algorithm using all the following methods\n\ta. Collaborative filtering with LSH(LSH + CF)\n\tb. Hybrid recommendation system with LSH(LSH + CF + content based)\n\tc. random ratings prediction\n Choice: ")
+  if command == '1':
+    predictUtilityMatrix(LSH_method="simhash", hybrid=True)
+  elif command == '2':
+    time_complexity_vals = plotTimeComplexityCurve()
+  elif command=='3':
+    evaluatePredictions(test_size=0.01)
+  else:
+    logger.error("Wrong Input, try again!")
+
+

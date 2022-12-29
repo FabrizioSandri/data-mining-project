@@ -24,7 +24,7 @@ def synthetic():
     logger.info("Relational Table generation")
     relational_table = generateRelationalTable(10000, 100)
     logger.info("Query DataSets Generation")
-    queryDataset = generateQueryDataset(relational_table, 1000, 10, False)
+    queryDataset = generateQueryDataset(relational_table, 2000, 10, False)
     logger.info("Utility Matrix DataSets Generation")
     utility_matrix = utilityMatrixGenerator(userArray, queryDataset, relational_table, sparsity)
     logger.info("Closing Generation Phase")

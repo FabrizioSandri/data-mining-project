@@ -5,6 +5,7 @@ import lsh
 
 import numpy as np
 import time
+import matplotlib
 import matplotlib.pyplot as plt
 
 '''
@@ -376,7 +377,7 @@ def measure_time_increase(utility, num_users=[], num_queries=[], algorithms="all
 
   for users in num_users:
     for queries in num_queries:
-      print("Measuring time performance with a utility matrix of size %d x %d (users x queries)" % (users, queries))
+      print("Utility matrix of size %d x %d (users x queries)" % (users, queries))
       # run the time performance measure on the sliced version of the utility matrix
       x, y, z, w = measure_time_performance(utility[:users-1,:queries-1], algorithms) 
 
@@ -415,12 +416,16 @@ Arguments:
 Returns:
   Plot the four aforementioned subplots
 '''
-def plot_time_increase(utility, num_users_j, num_users_c, num_queries_j, num_queries_c):
+def plot_time_increase(utility, num_users_j, num_users_c, num_queries_j, num_queries_c, logger):
 
+  logger.info("Measuring time performance Jaccard-MinHash increasing the number of queries")
   time_jaccard_q, _, time_minhash_q, _ = ev.measure_time_increase(utility, num_queries=num_queries_j, algorithms="jaccard")
+  logger.info("Measuring time performance Jaccard-MinHash increasing the number of users")
   time_jaccard_u, _, time_minhash_u, _ = ev.measure_time_increase(utility, num_users=num_users_j, num_queries=[1000], algorithms="jaccard")
 
+  logger.info("Measuring time performance Cosine-SimHash increasing the number of queries")
   _, time_cosine_q, _, time_simhash_q = ev.measure_time_increase(utility, num_queries=num_queries_c, algorithms="cosine")
+  logger.info("Measuring time performance Cosine-SimHash increasing the number of users")
   _, time_cosine_u, _, time_simhash_u = ev.measure_time_increase(utility, num_users=num_users_c, algorithms="cosine")
 
   fig,ax = plt.subplots(2,2)
@@ -460,6 +465,7 @@ def plot_time_increase(utility, num_users_j, num_users_c, num_queries_j, num_que
 
   plt.show()
 
+  return time_jaccard_q, time_minhash_q, time_jaccard_u, time_minhash_u, time_cosine_q, time_simhash_q, time_cosine_u, time_simhash_u
 
 '''
 This function computes the RMSE between the real values specified by target and 

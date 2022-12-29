@@ -45,7 +45,7 @@ with simHash).
 def plotTimeComplexityCurve():
   logger.info("Start plotting LSH algorithms time complexity")
   num_queries_j = np.arange(start=100, stop=1100, step=100)
-  num_queries_c = np.arange(start=200, stop=2000, step=100) # test cosine similarity and simhash with more queries
+  num_queries_c = np.arange(start=200, stop=2200, step=200) # test cosine similarity and simhash with more queries
   num_users = np.arange(start=100, stop=600, step=100)
 
   return ev.plot_time_increase(utility, num_users, num_users, num_queries_j, num_queries_c, logger)

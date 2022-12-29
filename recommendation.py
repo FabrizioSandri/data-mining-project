@@ -135,11 +135,11 @@ def getUserProfile(userId, utility, relational_table, query_set, queries_returni
   num_queries = query_set.shape[0]
   user_profile = np.asarray([0] * num_rows)
 
+  # find the average user rating
   userRating = []
   for rating in utility[userId]:
     if rating != 0 :
       userRating.append(rating)
-
   avgUserRating = int(np.round(np.mean(userRating)))
 
   for row_i in range(num_rows):
@@ -218,12 +218,18 @@ def hybridRecommendation(utility, relational_table, query_set, most_similar):
 
   for user in range(num_users):  # iterate over all the cell of the utility matrix that are empty
     print("Predicting missing ratings for user%d" % (user+1))
+    sim_user = {} # dictionary containing the similarity of the profile of the 
+                  # current user with at most all the possible queries
     for query in range(num_queries):    
       if predicted_utility[user, query] == 0:
         
         most_similar_query_sim = []
         for similar_query in most_similar[query]:
-          most_similar_query_sim.append(sim.cosine_similarity(user_profile[user], item_profile[similar_query]))
+          if similar_query in sim_user.keys():
+            most_similar_query_sim.append(sim_user[similar_query])
+          else:
+            sim_user[similar_query] = sim.cosine_similarity(user_profile[user], item_profile[similar_query])
+            most_similar_query_sim.append(sim_user[similar_query])
         
         # find the most similar query that should be recommended to the user
         # using content based recommendation combined with collaborative 

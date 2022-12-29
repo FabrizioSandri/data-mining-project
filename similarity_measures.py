@@ -58,16 +58,16 @@ Returns:
   The Cosine similarity of the two vectors
 '''
 def cosine_similarity(a, b):
-  try:
-    cos_sim = np.dot(a, b)/(np.linalg.norm(a)*np.linalg.norm(b))
-    if math.isnan(cos_sim):
-      return 0
-    else:
-      return(cos_sim)
-  except:
-    print("An exception occurred") 
-    print(list(a))
-    print(list(b))
+  dot_product = np.dot(a, b)
+  if dot_product == 0:
+    return 0
+
+  cos_sim = dot_product/(np.linalg.norm(a)*np.linalg.norm(b))
+  if math.isnan(cos_sim):
+    return 0
+  else:
+    return(cos_sim)
+
     
 
 '''

@@ -17,7 +17,7 @@ Returns:
     The query set as a pandas dataframe
 '''
 def generateQueryDataset(relational_table, numQueries, max_conditions = 20, real = False):
-
+    relational_table = relational_table.convert_dtypes()
     rows, features = relational_table.shape
     q_set = []
     for queries in range(numQueries):
@@ -25,7 +25,7 @@ def generateQueryDataset(relational_table, numQueries, max_conditions = 20, real
         num_conditions = np.random.randint(0, max_conditions)
 
         for _ in range(num_conditions): 
-            random_feature = np.random.randint(0, features)
+            random_feature = relational_table.columns[np.random.randint(0, features)]
 
             # The value assigned to the feature is randomly chosen from the
             # relational table values for that column with a probability of 99%,
@@ -33,14 +33,14 @@ def generateQueryDataset(relational_table, numQueries, max_conditions = 20, real
             # randomly(if a numeric feature, a value between 0 an 1000,
             # otherwise a float value)
             if np.random.rand() < 0.99:
-                random_feature_value = relational_table.loc[np.random.randint(0,rows), "F"+str(random_feature)] 
+                random_feature_value = relational_table.loc[np.random.randint(0,rows), random_feature] 
             else:
-                if pd.api.types.is_numeric_dtype(relational_table["F"+str(random_feature)]):
-                    random_feature_value = np.random.randint(0,1000)
+                if pd.api.types.is_numeric_dtype(relational_table[random_feature]):
+                    random_feature_value = int(np.random.randint(0,1000))
                 else:
                     random_feature_value = np.random.rand()
 
-            condition = "F" + str(random_feature) + "=" + str(random_feature_value)
+            condition = random_feature + "=" + str(random_feature_value)
             query_conditions.append(condition)
             
         q_set.append(query_conditions)

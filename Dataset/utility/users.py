@@ -153,7 +153,7 @@ def gradeNormalzation(user_ratings, low, high):
     norm = user_ratings/100
     norm *= (high - low)
     norm += low
-    norm = np.round(norm)
+    norm = np.round(norm).astype(int)
 
     return list(norm)
 
@@ -229,7 +229,7 @@ def utilityMatrixGenerator(userArray, queryDataset, relational_table, sparsity =
     for i in range(sparsity_amount):
         row = np.random.randint(0, nUsers)
         column = np.random.randint(0, q_rows)
-        utilityMatrix[row][column] = ''
+        utilityMatrix[row][column] = None
 
     utilityDataset = pd.DataFrame(utilityMatrix, columns=columns_label, index=userArray)
     csvSaver(dataName="UtilityDataset_Synthetic.csv", dataset=utilityDataset, header=True, index=True)

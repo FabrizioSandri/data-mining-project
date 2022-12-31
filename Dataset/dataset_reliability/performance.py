@@ -164,34 +164,15 @@ def getQueriesClusters(relational_table, query_set):
   return(most_similar)
 
 
-'''
-This function can be used to tweak the parameters of makeblobs
-'''
-def showMakeBlobsOutput():
-  X, Y = make_blobs(
-    n_samples=100,
-    n_features=10,
-    cluster_std=0.5,
-    center_box=(1,20),
-    random_state = 89
-  )
-
-  rows, columns = X.shape
-  for i in range(rows):
-    for j in range(columns):
-      X[i][j]= abs(int(X[i][j]))
-
-  plt.scatter(X[:,0], X[:,1], c=Y)
-  plt.show()
-
 
 if __name__=='__main__':
-  query_set = pd.read_csv("Dataset/dataFolder/QueriesDataset_Syntethic.csv", index_col=0, header=None)
-  relational_table = pd.read_csv("Dataset/dataFolder/RelationaTable_make_blobs.csv")
+
+  query_set = pd.read_csv("Dataset/dataFolder/query_set.csv", index_col=0, header=None)
+  relational_table = pd.read_csv("Dataset/dataFolder/relational_table.csv")
   relational_table = relational_table.convert_dtypes()
 
-  clusters = getQueriesClusters(relational_table, query_set) 
-  print(clusters)
+  # clusters = getQueriesClusters(relational_table, query_set) 
+  # print(clusters)
 
   print("The dataset is made of a total of %d queries, of which %d returns at least one row" % (query_set.shape[0], countNonEmptyQueries(relational_table, query_set)))
   print("The dataset queries returns an average of %d rows" % (averageRowsReturned(relational_table, query_set)))

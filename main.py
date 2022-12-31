@@ -22,11 +22,11 @@ logger = logging.getLogger()
 #### Import the datasets
 logger.info("Importing Datasets")
 
-utility_df = pd.read_csv("Dataset/dataFolder/UtilityDataset_Synthetic.csv", index_col=0)
+utility_df = pd.read_csv("Dataset/dataFolder/utility_matrix.csv", index_col=0)
 utility_df.fillna(0, inplace=True)
 
-query_set = pd.read_csv("Dataset/dataFolder/QueriesDataset_Syntethic.csv", index_col=0, header=None)
-relational_table = pd.read_csv("Dataset/dataFolder/RelationaTable_make_blobs.csv")
+query_set = pd.read_csv("Dataset/dataFolder/query_set.csv", index_col=0, header=None)
+relational_table = pd.read_csv("Dataset/dataFolder/relational_table.csv")
 relational_table = relational_table.convert_dtypes()
 
 utility = utility_df.to_numpy()

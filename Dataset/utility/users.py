@@ -24,7 +24,7 @@ def userGenerator(nUser):
         idUsr = "user" + str(i)
         userArray.append(idUsr)
     userDataset = pd.DataFrame(userArray)
-    csvSaver(dataName="userDataset.csv", dataset=userDataset, header=False, index=False)
+    csvSaver(dataName="user_set.csv", dataset=userDataset, header=False, index=False)
     return userArray
 
 '''
@@ -232,7 +232,7 @@ def utilityMatrixGenerator(userArray, queryDataset, relational_table, sparsity =
         utilityMatrix[row][column] = None
 
     utilityDataset = pd.DataFrame(utilityMatrix, columns=columns_label, index=userArray)
-    csvSaver(dataName="UtilityDataset_Synthetic.csv", dataset=utilityDataset, header=True, index=True)
+    csvSaver(dataName="utility_matrix.csv", dataset=utilityDataset, header=True, index=True)
 
     return utilityDataset
 

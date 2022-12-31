@@ -48,8 +48,7 @@ def generateQueryDataset(relational_table, numQueries, max_conditions = 20, real
 
     indexes = ["Q" + str(i) for i in range(numQueries)]
     queryDataset = pd.DataFrame(q_set, index=indexes)
-    csv_file_name = "QueriesDataset_Real.csv" if real else "QueriesDataset_Syntethic.csv"
-    csvSaver(dataName=csv_file_name, dataset=queryDataset, header=False, index=True)
+    csvSaver(dataName="query_set.csv", dataset=queryDataset, header=False, index=True)
 
     return queryDataset
 

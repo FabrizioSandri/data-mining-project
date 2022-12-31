@@ -150,14 +150,14 @@ def getUserProfile(userId, utility, relational_table, query_set, queries_returni
       if utility[userId,query] != 0: # the user has rated the query
         row_ratings.append(utility[userId,query])
 
-    row_ratings = np.asarray(row_ratings) - avgUserRating # subtract the average rating of the user
+    row_ratings = np.asarray(row_ratings)
 
     if len(row_ratings) == 0:
       avg_row_rating = 0
     else:
-      avg_row_rating = np.mean(row_ratings)
+      avg_row_rating = np.mean(row_ratings) - avgUserRating # subtract the average rating of the user
 
-    user_profile[row_i] = avg_row_rating
+    user_profile[row_i] = avg_row_rating 
 
   return user_profile
 

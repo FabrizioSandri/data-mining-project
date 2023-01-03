@@ -78,26 +78,49 @@ Returns:
   3. the average number of candidate pairs found for each item (avg_candidates)
 '''
 def plot_bands_curve(utility, similarity):
+  error_rate = []
   correctly_estimated = []
   time_to_run = []
   avg_candidates = []
-  for r in range(1,15):
+  num_users, num_queries = utility.shape
+  rows_per_band = np.arange(5,16,1)
+  for r in rows_per_band:
+    print("Test with rows_per_band=%d" % r)
     start_time = int(time.time())
 
-    # run simHash
-    signature_matrix = lsh.simHash(utility_matrix=utility, hyperplanes=200)
-    similar_items = lsh.lsh(signature_matrix, rows_per_band=r)
+    if similarity=="cosine":
+      # LSH with simHash
+      signature_matrix = lsh.simHash(utility_matrix=utility, hyperplanes=200)
+      similar_items = lsh.lsh(signature_matrix, rows_per_band=r)
+    else:
+      # LSH with minHash
+      signature_matrix = lsh.minHash(utility_matrix=utility, k=400, T=50)
+      similar_items = lsh.lsh(signature_matrix, rows_per_band=r)
+    
+    # For each query find the most similar query among the candidate pairs. 
+    for q in range(num_queries):
+      prefs = []
+      for i in similar_items[q]:
+        if similarity == "jaccard":
+          prefs.append(sim.jaccard_threshold(utility[:,q], utility[:,i], T=50))
+        else:
+          prefs.append(sim.cosine_similarity(utility[:,q], utility[:,i]))
+
+      if len(similar_items[q]) == 0:
+        res.append(-1) # no similar query found
+      else:
+        most_similar_query = np.argmax(prefs)
 
     end_time = int(time.time()) - start_time
 
+    # estimate the error rate(1 - accuracy)
     real = []
     estimated = []
-    for i in range(1000):
+    for i in range(num_queries):
       res = ev.most_similar_query(i, similarity=similarity, utility=utility, similar_items=similar_items)
       real.append(res[0])
       estimated.append(res[1])
 
-    print("Test with rows_per_band=%d" % r)
 
     real = np.asarray(real)
     estimated = np.asarray(estimated)
@@ -108,8 +131,26 @@ def plot_bands_curve(utility, similarity):
 
     correctly_estimated.append(np.sum((real - estimated ) == 0))
     time_to_run.append(end_time)
+    error_rate.append(1 - (np.sum((real - estimated ) == 0))/num_queries)
 
-  return correctly_estimated, time_to_run, avg_candidates
+  # Plot the results
+  fig,ax = plt.subplots(2,1)
+  ax = ax.flatten()
+
+  ax[0].plot(rows_per_band, error_rate, label="Error rate")
+  ax[0].set_xlabel("Number of rows per band")
+  ax[0].set_ylabel("Error rate")
+  ax[0].legend()
+  ax[0].grid()
+  ax[1].plot(rows_per_band, time_to_run, label="Execution time")
+  ax[1].set_xlabel("Number of rows per band")
+  ax[1].set_ylabel("Execution time (seconds)")
+  ax[1].legend()
+  ax[1].grid()
+
+  plt.show()
+
+  return rows_per_band, error_rate, correctly_estimated, time_to_run, avg_candidates
 
 
 '''
@@ -128,38 +169,85 @@ Returns:
   3. the average number of candidate pairs found for each item (avg_candidates)
 '''
 def plot_rows_curve(utility, similarity):
+  error_rate = []
   correctly_estimated = []
   time_to_run = []
   avg_candidates = []
-  for h in np.arange(50, 500, 50):
+  num_users, num_queries = utility.shape
+  rows = np.arange(200, 2200, 200)
+  for h in rows:
     start_time = int(time.time())
+    if similarity=="cosine":
+      # LSH with simHash
+      signature_matrix = lsh.simHash(utility_matrix=utility, hyperplanes=h)
+      similar_items = lsh.lsh(signature_matrix, rows_per_band=12)
+    else:
+      # LSH with minHash
+      signature_matrix = lsh.minHash(utility_matrix=utility, k=h, T=50)
+      similar_items = lsh.lsh(signature_matrix, rows_per_band=7)
 
-    # run simHash
-    signature_matrix = lsh.simHash(utility_matrix=utility, hyperplanes=h)
-    similar_items = lsh.lsh(signature_matrix, rows_per_band=11)
+    # For each query find the most similar query among the candidate pairs. 
+    for q in range(num_queries):
+      prefs = []
+      for i in similar_items[q]:
+        if similarity == "jaccard":
+          prefs.append(sim.jaccard_threshold(utility[:,q], utility[:,i], T=50))
+        else:
+          prefs.append(sim.cosine_similarity(utility[:,q], utility[:,i]))
+
+      if len(similar_items[q]) == 0:
+        res.append(-1) # no similar query found
+      else:
+        most_similar_query = np.argmax(prefs)
 
     end_time = int(time.time()) - start_time
 
+    # estimate the error rate(1 - accuracy)
     real = []
     estimated = []
-    for i in range(1000):
+    for i in range(num_queries):
       res = ev.most_similar_query(i, similarity=similarity, utility=utility, similar_items=similar_items)
       real.append(res[0])
       estimated.append(res[1])
 
-    print("Test with number of hyperplanes=%d" % h)
 
     real = np.asarray(real)
     estimated = np.asarray(estimated)
-    print("Number of correctly predicted similar items: %d with a total time of %d" % (np.sum((real - estimated ) == 0), end_time))
+    print("Test with number of %d rows of the signature matrix" % h)
+    print("Number of correctly predicted similar items: %d" % np.sum((real - estimated ) == 0))
 
     lengths = [len(i) for i in similar_items.values()]
     avg_candidates.append(0 if len(lengths) == 0 else (float(sum(lengths)) / len(lengths)))
 
     correctly_estimated.append(np.sum((real - estimated ) == 0))
     time_to_run.append(end_time)
+    error_rate.append(1 - (np.sum((real - estimated ) == 0))/num_queries)
 
-  return correctly_estimated, time_to_run, avg_candidates
+  # Plot the results
+  fig,ax = plt.subplots(2,1)
+  ax = ax.flatten()
+
+  # ax[0].plot(rows, avg_candidates, label="Avg amount of similar candidates")
+  # ax[0].plot(rows, correctly_estimated, label="Number of correctly estimated similarities")
+  # ax[0].set_xlabel("Number of signature matrix rows")
+  # ax[0].set_ylabel("Similar queries")
+  # ax[0].legend()
+  # ax[0].grid()
+
+  ax[0].plot(rows, error_rate, label="Error rate")
+  ax[0].set_xlabel("Number of signature matrix rows")
+  ax[0].set_ylabel("Error rate")
+  ax[0].legend()
+  ax[0].grid()
+  ax[1].plot(rows, time_to_run, label="Execution time")
+  ax[1].set_xlabel("Number of signature matrix rows")
+  ax[1].set_ylabel("Execution time (seconds)")
+  ax[1].legend()
+  ax[1].grid()
+
+  plt.show()
+
+  return rows, error_rate, correctly_estimated, time_to_run, avg_candidates
 
 
 '''

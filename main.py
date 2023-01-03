@@ -117,14 +117,17 @@ def evaluatePredictions(test_size):
 if __name__=='__main__':
 
   logger.info("Starting DataSets Generation Phase")
-  command = input("Select the operation you want to do:\n[1] Fill the blanks of the utility matrix using the Hybrid recommendation system(LSH + CF + Content based)\n[2] Evaluate the performance of LSH wrt the performance of running the algorithm without LSH\n[3] Compare the RMSE of running the algorithm using all the following methods\n\ta. Collaborative filtering with LSH(LSH + CF)\n\tb. Hybrid recommendation system with LSH(LSH + CF + content based)\n\tc. random ratings prediction\n Choice: ")
+  command = input("Select the operation you want to do:\n[1] Fill the blanks of the utility matrix using the Hybrid recommendation system(LSH + CF + Content based)\n[2] Evaluate the performance of LSH wrt the performance of running the algorithm without LSH\n[3] Compare the RMSE of running the algorithm using all the following methods\n\ta. Collaborative filtering with LSH(LSH + CF)\n\tb. Hybrid recommendation system with LSH(LSH + CF + content based)\n\tc. random ratings prediction\n\n[4] Measure time performance and error rate increasing the signature matrix size\n[5] Measure time performance and error rate increasing the number of rows per band of LSH\n Choice: ")
   if command == '1':
     predictUtilityMatrix(LSH_method="simhash", hybrid=True)
   elif command == '2':
     time_complexity_vals = plotTimeComplexityCurve()
   elif command=='3':
     evaluatePredictions(test_size=0.01)
+  elif command=='4':
+    rows, error_rate, correctly_estimated, time_to_run, avg_candidates = ev.plot_rows_curve(utility, "cosine")
+  elif command=='5':
+    rows_per_band, error_rate, correctly_estimated, time_to_run, avg_candidates = ev.plot_bands_curve(utility, "cosine")
   else:
     logger.error("Wrong Input, try again!")
-
 

@@ -28,6 +28,17 @@ def userGenerator(nUser):
     return userArray
 
 '''
+Auxiliary function used to add the first line containing the ids of the queries 
+to the utility matrix file
+'''
+def query_header_prepender(filename, queries):
+    line = ','.join(queries)
+    with open(filename, 'r+') as f:
+        content = f.read()
+        f.seek(0, 0)
+        f.write(line.rstrip('\r\n') + '\n' + content) 
+
+'''
 This function runs K-means with K=20 to identify clusters of queries based on 
 the rows that they generate. 
 
@@ -232,7 +243,8 @@ def utilityMatrixGenerator(userArray, queryDataset, relational_table, sparsity =
         utilityMatrix[row][column] = None
 
     utilityDataset = pd.DataFrame(utilityMatrix, columns=columns_label, index=userArray)
-    csvSaver(dataName="utility_matrix.csv", dataset=utilityDataset, header=True, index=True)
-
+    csvSaver(dataName="utility_matrix.csv", dataset=utilityDataset, header=False, index=True)
+    query_header_prepender("Dataset/dataFolder/utility_matrix.csv", columns_label)
+    
     return utilityDataset
 

@@ -249,68 +249,6 @@ def plot_rows_curve(utility, similarity):
 
   return rows, error_rate, correctly_estimated, time_to_run, avg_candidates
 
-
-'''
-This function allows to measure the performance of LSH increasing the number of 
-rows of the signature matrix and increasing the number of rows per band
-
-Arguments:
-  utility: the utility matrix
-  similarity: the similarity measure to use, either "jaccard" or "cosine"
-Returns:
-  This function returns several performance measures in a tuple of three 
-  elements(three lists):
-  1. the number of items for which the estimated most similar item with LSH is 
-    the same as the one found without LSH (correctly_estimated)
-  2. the time to run LSH (time_to_run)
-  3. the average number of candidate pairs found for each item (avg_candidates)
-'''
-def plot_combined_curve(utility, similarity):
-  correctly_estimated = []
-  time_to_run = []
-  avg_candidates = []
-  for h in np.arange(50, 500, 50):
-    for r in range(5,20):
-
-
-      print("Test with number of hyperplanes=%d" % h)
-      print("Test with rows_per_band=%d" % r)
-      
-      start_time = int(time.time())
-
-      # run simHash
-      signature_matrix = lsh.simHash(utility_matrix=utility, hyperplanes=h)
-      similar_items = lsh.lsh(signature_matrix, rows_per_band=r)
-
-      end_time = int(time.time()) - start_time
-
-      real = []
-      estimated = []
-      for i in range(1000):
-        res = ev.most_similar_query(i, similarity=similarity, utility=utility, similar_items=similar_items)
-        real.append(res[0])
-        estimated.append(res[1])
-
-
-      real = np.asarray(real)
-      estimated = np.asarray(estimated)
-      print("Number of correctly predicted similar items: %d with a total time of %d" % (np.sum((real - estimated ) == 0), end_time))
-
-      lengths = [len(i) for i in similar_items.values()]
-      avg_candidates.append(0 if len(lengths) == 0 else (float(sum(lengths)) / len(lengths)))
-
-      correctly_estimated.append(np.sum((real - estimated ) == 0))
-      time_to_run.append(end_time)
-
-  print("Parameters:")
-  for h in np.arange(50, 500, 50):
-    for r in range(5,20):
-      print("h: %d r: %d" % (h,r))
-
-  return correctly_estimated, time_to_run, avg_candidates
-
-
-
 '''
 This function allows to measure the performance four algorithms to find the most 
 similar items:

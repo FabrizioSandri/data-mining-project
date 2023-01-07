@@ -128,7 +128,21 @@ def getItemProfile(query, relational_table, query_set):
 
 
 '''
-This fun
+This function generates the user profile for the user specified by userId, which
+is a vector with the size of the number of rows of the relational table, filled 
+with the average rating given by the user to previous queries rated by that user
+
+Arguments:
+  userId: the id of the user without the 'user' prefix
+  utility: the utility matrix
+  relational_table: the pandas dataframe containing the relational table
+  query_set: the pandas dataframe containing the description of the queries sent
+    by the users
+  queries_returning_row: a dictionary specifying for each of its entries which
+    queries returns the specified row
+
+Returns:
+  A user profile for the user given as input
 '''
 def getUserProfile(userId, utility, relational_table, query_set, queries_returning_row):
   num_rows = relational_table.shape[0]
@@ -196,6 +210,21 @@ def getQueriesReturningRow(relational_table, query_set):
 
 
 
+'''
+This is the implementation of the recommendation system, first runs 
+collaborative filtering with LSH and then uses the information from the queries,
+i.e. content based information to predict the ratings with the most similar one.
+
+Arguments:
+  utility: the utility matrix
+  relational_table: the pandas dataframe containing the relational table
+  query_set: the pandas dataframe containing the description of the queries sent
+    by the users
+  most_similar: a dictionary of the K most similar queries found by LSH 
+
+Returns:
+  The utility matrix filled with the missing ratings
+'''
 def hybridRecommendation(utility, relational_table, query_set, most_similar):
   predicted_utility = utility.copy()
   num_queries = query_set.shape[0]

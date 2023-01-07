@@ -227,13 +227,6 @@ def plot_rows_curve(utility, similarity):
   fig,ax = plt.subplots(2,1)
   ax = ax.flatten()
 
-  # ax[0].plot(rows, avg_candidates, label="Avg amount of similar candidates")
-  # ax[0].plot(rows, correctly_estimated, label="Number of correctly estimated similarities")
-  # ax[0].set_xlabel("Number of signature matrix rows")
-  # ax[0].set_ylabel("Similar queries")
-  # ax[0].legend()
-  # ax[0].grid()
-
   ax[0].plot(rows, error_rate, label="Error rate")
   ax[0].set_xlabel("Number of signature matrix rows")
   ax[0].set_ylabel("Error rate")
@@ -506,7 +499,6 @@ Returns:
 '''
 def rmse(target, prediction):
   return np.sqrt(np.mean((prediction-target)**2))
-
 
 
 '''

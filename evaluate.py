@@ -488,7 +488,7 @@ def plot_time_increase(utility, num_users_j, num_users_c, num_queries_j, num_que
 
 '''
 This function computes the RMSE between the real values specified by target and 
-the predicted values specified by predictions.
+the predicted values specified by prediction.
 
 Arguments:
   target: the real values
@@ -502,21 +502,34 @@ def rmse(target, prediction):
 
 
 '''
-This function allows to measure the average error between the predicted ratings 
-and the real ones. In a first step this function runs LSH with simHash or 
-minHash based on the `similarity` parameter. Then this function predicts the 
-utility matrix only using the average of the K most similar queries found by LSH.
-In addition this function predicts the utility matrix with another step that 
-after LSH that is using content based recommendation by finding among the 
-similar queries found by LSH the T most similar by looking at their content, 
-i.e. given a query q the T most similar among the similar items of q found by 
-LSH are the queries that have the highest number of tuples in common with q.
-At the end the utility matrix is also predicted with random values in order to 
-compare the random predictions with sensate ones.
+This function computes the MAE(mean absolute error) between the real values 
+specified by target and the predicted values specified by prediction.
+
+Arguments:
+  target: the real values
+  prediction: the predicted values
+
+Returns:
+  The MAE between the real values and the predicted values
+'''
+def mae(target, prediction):
+  return np.mean(np.abs(prediction - target))
+  
+
+'''
+This function allows to measure the average error between the predicted ratings
+and the real ones. In a first step this function runs LSH with simHash or
+minHash based on the `similarity` parameter. Then this function predicts the
+utility matrix only using the average of the K most similar queries found by
+LSH. In addition this function predicts the utility matrix with another step
+that combined collaborative filtering with content based into an hybrid
+recommendation system. At the end the utility matrix is also predicted with
+random values in order to compare the random predictions with sensate ones.
 
 Arguments:
   original_utility: the original utility matrix taken as input
-  test_size: fraction of non-zero values to use as test set(percentage)
+  utility: the utility matrix with some ratings removed
+  test_mask: the mask of the ratings that have been removed 
   similarity: either "jaccard" or "cosine", this allows to choose whether to use 
     MinHash or SimHash as LSH technique
   relational_table: the pandas dataframe containing the relational table
@@ -528,13 +541,7 @@ Returns:
   the utility matrix and the predicted ones: 
   1. the first returned element is the average error
 '''
-def evaluate_prediction(original_utility, test_size, similarity, relational_table, query_set):
-  utility = original_utility.copy()
-  
-  test_mask = np.random.choice([True, False], original_utility.shape , p=[test_size,1-test_size])
-  test_mask = test_mask & (original_utility!=0)
-  utility[test_mask] = 0
-  print("Size of the test: %d" % np.sum(test_mask))
+def evaluate_prediction(original_utility, utility, test_mask, similarity, relational_table, query_set):
 
   if similarity == "cosine":
     # LSH with simHash
@@ -548,16 +555,69 @@ def evaluate_prediction(original_utility, test_size, similarity, relational_tabl
 
   # compute the missing ratings
   K = 20 
-  T = 5
 
   k_most_similar = rec.get_k_most_similar_queries_utility(K, utility, similar_items, similarity)
   predicted_utility_k = rec.predictAsAverage(utility, k_most_similar)
   predicted_utility_content = rec.hybridRecommendation(utility, relational_table, query_set, k_most_similar)
   predicted_utility_random = np.random.randint(1,101, utility.shape) # predict with random values
+  
+  return {
+    "rmse": (
+      rmse(original_utility[test_mask], predicted_utility_k[test_mask]),
+      rmse(original_utility[test_mask], predicted_utility_content[test_mask]),
+      rmse(original_utility[test_mask], predicted_utility_random[test_mask])
+    ),
+    "mae":(
+      mae(original_utility[test_mask], predicted_utility_k[test_mask]),
+      mae(original_utility[test_mask], predicted_utility_content[test_mask]),
+      mae(original_utility[test_mask], predicted_utility_random[test_mask])
+    )
+  }
 
-  avg_error_only_lsh = rmse(original_utility[test_mask], predicted_utility_k[test_mask])
-  avg_error_lsh_content = rmse( original_utility[test_mask], predicted_utility_content[test_mask])
-  avg_error_random = rmse( original_utility[test_mask], predicted_utility_random[test_mask])
 
-  return(avg_error_only_lsh, avg_error_lsh_content, avg_error_random)
+def kfold_cross_validation(num_folds, original_utility, similarity, relational_table, query_set):
+  utility = original_utility.copy()
+  
+  rows, cols = np.nonzero(utility)
+  test_indexes = np.arange(len(rows))
+  np.random.shuffle(test_indexes)
+  folds = np.array_split(test_indexes, num_folds)
+  
+  fold_rmse = [(1,2,3),(2,4,6)]
+  fold_mae = []
 
+  for fold_i in range(len(folds)):
+
+    print("Running fold %d/%d" % (fold_i+1, len(folds)))
+
+    utility = original_utility.copy()
+    test_mask = np.full(utility.shape, False)
+
+    for i in folds[fold_i]:
+      row = rows[i]
+      col = cols[i]
+      test_mask[row, col] = True
+    
+    utility[test_mask] = 0
+
+    print("Size of the test: %d" % np.sum(test_mask))
+    errors = evaluate_prediction(original_utility, utility, test_mask, "cosine", relational_table, query_set)
+    fold_rmse.append(errors["rmse"])
+    fold_mae.append(errors["mae"])
+
+  # compute the average over the folds
+  rmse_mean = np.mean(np.asarray(fold_rmse), axis=0)
+  mae_mean = np.mean(np.asarray(fold_mae), axis=0)
+  
+  return {
+    "rmse": (
+      rmse_mean[0],
+      rmse_mean[1],
+      rmse_mean[2]
+    ),
+    "mae":(
+      mae_mean[0],
+      mae_mean[1],
+      mae_mean[2]
+    )
+  }

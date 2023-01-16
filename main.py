@@ -102,21 +102,27 @@ def predictUtilityMatrix(LSH_method="simhash", hybrid=True):
 '''
 This function evaluates the results found by the recommendation system 
 '''
-def evaluatePredictions(test_size):
+def evaluatePredictions(num_folds):
   
   logger.info("Starting with the evaluation of the results")
-  avg_error_only_lsh, avg_error_lsh_content, avg_error_random = ev.evaluate_prediction(original_utility, test_size, "cosine", relational_table, query_set)
+  errors = ev.kfold_cross_validation(num_folds, original_utility, "cosine", relational_table, query_set)
 
-  print("The predicted ratings using only LSH differ from the real ones by an average of %f" % avg_error_only_lsh)
-  print("The predicted ratings using LSH + content based differ from the real ones by an average of %f" % avg_error_lsh_content)
-  print("The predicted ratings differ from the randomly generated predictions by an average of %f" % avg_error_random)
+  avg_error_only_lsh, avg_error_lsh_content, avg_error_random = errors["rmse"]
+  print("RMSE = %f when using LSH + CF" % avg_error_only_lsh)
+  print("RMSE = %f when using LSH + CF + Content based(Hybrid rec. system)" % avg_error_lsh_content)
+  print("RMSE = %f when using random ratings" % avg_error_random)
+
+  avg_error_only_lsh, avg_error_lsh_content, avg_error_random = errors["mae"]
+  print("MAE = %f when using LSH + CF" % avg_error_only_lsh)
+  print("MAE = %f when using LSH + CF + Content based(Hybrid rec. system)" % avg_error_lsh_content)
+  print("MAE = %f when using random ratings" % avg_error_random)
 
 
 ################################################################################
 
 if __name__=='__main__':
 
-  command = input("Select the operation you want to do:\n\n[1] Fill the blanks of the utility matrix using the Hybrid recommendation system(LSH + CF + Content based)\n[2] Fill the blanks of the utility matrix using Collaborative filtering with LSH(LSH + CF)\n[3] Evaluate the performance of LSH wrt the performance of running the algorithm without LSH\n[4] Compare the RMSE of running the algorithm using all the following methods\n\ta. Collaborative filtering with LSH(LSH + CF)\n\tb. Hybrid recommendation system with LSH(LSH + CF + content based)\n\tc. random ratings prediction\n\n[5] Measure time performance and error rate increasing the signature matrix size\n[6] Measure time performance and error rate increasing the number of rows per band of LSH\n Choice: ")  
+  command = input("Select the operation you want to do:\n\n[1] Fill the blanks of the utility matrix using the Hybrid recommendation system(LSH + CF + Content based)\n[2] Fill the blanks of the utility matrix using Collaborative filtering with LSH(LSH + CF)\n[3] Evaluate the performance of LSH wrt the performance of running the algorithm without LSH\n[4] Compare the RMSE and the MAE of running the algorithm using all the following methods\n\ta. Collaborative filtering with LSH(LSH + CF)\n\tb. Hybrid recommendation system with LSH(LSH + CF + content based)\n\tc. random ratings prediction\n\n[5] Measure time performance and error rate increasing the signature matrix size\n[6] Measure time performance and error rate increasing the number of rows per band of LSH\n Choice: ")  
   if command == '1':
     predictUtilityMatrix(LSH_method="simhash", hybrid=True)
   if command == '2':
@@ -124,7 +130,7 @@ if __name__=='__main__':
   elif command == '3':
     time_complexity_vals = plotTimeComplexityCurve()
   elif command=='4':
-    evaluatePredictions(test_size=0.01)
+    evaluatePredictions(num_folds=50)
   elif command=='5':
     rows, error_rate, correctly_estimated, time_to_run, avg_candidates = ev.plot_rows_curve(utility, "cosine")
   elif command=='6':

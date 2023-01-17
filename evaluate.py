@@ -541,41 +541,44 @@ Returns:
   the utility matrix and the predicted ones: 
   1. the first returned element is the average error
 '''
-def evaluate_prediction(original_utility, utility, test_mask, similarity, relational_table, query_set):
+def evaluate_prediction(original_utility, utility, test_mask, relational_table, query_set):
 
-  if similarity == "cosine":
-    # LSH with simHash
-    signature_matrix = lsh.simHash(utility_matrix=utility, hyperplanes=400)
-    similar_items = lsh.lsh(signature_matrix, rows_per_band=15)
-  else: 
-    # LSH with minHash
-    signature_matrix = lsh.minHash(utility_matrix=utility, k=400, T=50)
-    similar_items = lsh.lsh(signature_matrix, rows_per_band=7)
+  # LSH with simHash
+  signature_matrix_simhash = lsh.simHash(utility_matrix=utility, hyperplanes=400)
+  similar_items_simhash = lsh.lsh(signature_matrix_simhash, rows_per_band=15)
+  
+  # LSH with minHash
+  signature_matrix_minhash = lsh.minHash(utility_matrix=utility, k=400, T=50)
+  similar_items_minhash = lsh.lsh(signature_matrix_minhash, rows_per_band=7)
 
 
   # compute the missing ratings
   K = 20 
 
-  k_most_similar = rec.get_k_most_similar_queries_utility(K, utility, similar_items, similarity)
-  predicted_utility_k = rec.predictAsAverage(utility, k_most_similar)
-  predicted_utility_content = rec.hybridRecommendation(utility, relational_table, query_set, k_most_similar)
+  k_most_similar_minhash = rec.get_k_most_similar_queries_utility(K, utility, similar_items_minhash, "jaccard")
+  k_most_similar_simhash = rec.get_k_most_similar_queries_utility(K, utility, similar_items_simhash, "cosine")
+  predicted_utility_minhash = rec.predictAsAverage(utility, k_most_similar_minhash)
+  predicted_utility_simhash = rec.predictAsAverage(utility, k_most_similar_simhash)
+  predicted_utility_content = rec.hybridRecommendation(utility, relational_table, query_set, k_most_similar_simhash)
   predicted_utility_random = np.random.randint(1,101, utility.shape) # predict with random values
   
   return {
     "rmse": (
-      rmse(original_utility[test_mask], predicted_utility_k[test_mask]),
+      rmse(original_utility[test_mask], predicted_utility_minhash[test_mask]),
+      rmse(original_utility[test_mask], predicted_utility_simhash[test_mask]),
       rmse(original_utility[test_mask], predicted_utility_content[test_mask]),
       rmse(original_utility[test_mask], predicted_utility_random[test_mask])
     ),
     "mae":(
-      mae(original_utility[test_mask], predicted_utility_k[test_mask]),
+      mae(original_utility[test_mask], predicted_utility_minhash[test_mask]),
+      mae(original_utility[test_mask], predicted_utility_simhash[test_mask]),
       mae(original_utility[test_mask], predicted_utility_content[test_mask]),
       mae(original_utility[test_mask], predicted_utility_random[test_mask])
     )
   }
 
 
-def kfold_cross_validation(num_folds, original_utility, similarity, relational_table, query_set):
+def kfold_cross_validation(num_folds, original_utility, relational_table, query_set):
   utility = original_utility.copy()
   
   rows, cols = np.nonzero(utility)
@@ -583,7 +586,7 @@ def kfold_cross_validation(num_folds, original_utility, similarity, relational_t
   np.random.shuffle(test_indexes)
   folds = np.array_split(test_indexes, num_folds)
   
-  fold_rmse = [(1,2,3),(2,4,6)]
+  fold_rmse = []
   fold_mae = []
 
   for fold_i in range(len(folds)):
@@ -601,7 +604,7 @@ def kfold_cross_validation(num_folds, original_utility, similarity, relational_t
     utility[test_mask] = 0
 
     print("Size of the test: %d" % np.sum(test_mask))
-    errors = evaluate_prediction(original_utility, utility, test_mask, "cosine", relational_table, query_set)
+    errors = evaluate_prediction(original_utility, utility, test_mask, relational_table, query_set)
     fold_rmse.append(errors["rmse"])
     fold_mae.append(errors["mae"])
 
@@ -613,11 +616,13 @@ def kfold_cross_validation(num_folds, original_utility, similarity, relational_t
     "rmse": (
       rmse_mean[0],
       rmse_mean[1],
-      rmse_mean[2]
+      rmse_mean[2],
+      rmse_mean[3]
     ),
     "mae":(
       mae_mean[0],
       mae_mean[1],
-      mae_mean[2]
+      mae_mean[2],
+      mae_mean[3]
     )
-  }
+  }, fold_rmse, fold_mae

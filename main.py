@@ -105,18 +105,21 @@ This function evaluates the results found by the recommendation system
 def evaluatePredictions(num_folds):
   
   logger.info("Starting with the evaluation of the results")
-  errors = ev.kfold_cross_validation(num_folds, original_utility, "cosine", relational_table, query_set)
+  errors, fold_rmse, fold_mae = ev.kfold_cross_validation(num_folds, original_utility, relational_table, query_set)
 
-  avg_error_only_lsh, avg_error_lsh_content, avg_error_random = errors["rmse"]
-  print("RMSE = %f when using LSH + CF" % avg_error_only_lsh)
+  avg_error_only_lsh_minhash, avg_error_only_lsh_simhash, avg_error_lsh_content, avg_error_random = errors["rmse"]
+  print("RMSE = %f when using LSH + CF(MinHash)" % avg_error_only_lsh_minhash)
+  print("RMSE = %f when using LSH + CF(SimHash)" % avg_error_only_lsh_simhash)
   print("RMSE = %f when using LSH + CF + Content based(Hybrid rec. system)" % avg_error_lsh_content)
   print("RMSE = %f when using random ratings" % avg_error_random)
 
-  avg_error_only_lsh, avg_error_lsh_content, avg_error_random = errors["mae"]
-  print("MAE = %f when using LSH + CF" % avg_error_only_lsh)
+  avg_error_only_lsh_minhash, avg_error_only_lsh_simhash, avg_error_lsh_content, avg_error_random = errors["mae"]
+  print("MAE = %f when using LSH + CF(MinHash)" % avg_error_only_lsh_minhash)
+  print("MAE = %f when using LSH + CF(SimHash)" % avg_error_only_lsh_simhash)
   print("MAE = %f when using LSH + CF + Content based(Hybrid rec. system)" % avg_error_lsh_content)
   print("MAE = %f when using random ratings" % avg_error_random)
 
+  return fold_rmse, fold_mae
 
 ################################################################################
 
@@ -130,7 +133,7 @@ if __name__=='__main__':
   elif command == '3':
     time_complexity_vals = plotTimeComplexityCurve()
   elif command=='4':
-    evaluatePredictions(num_folds=50)
+    fold_rmse, fold_mae = evaluatePredictions(num_folds=10)
   elif command=='5':
     rows, error_rate, correctly_estimated, time_to_run, avg_candidates = ev.plot_rows_curve(utility, "cosine")
   elif command=='6':

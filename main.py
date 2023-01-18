@@ -8,13 +8,12 @@ import pandas as pd
 import time
 import matplotlib.pyplot as plt
 
-
 import logging
 import sys
 
 ################################################################################
 
-#Creating and Configuring Logger
+# Creating and Configuring Logger
 Log_Format = "%(levelname)s %(asctime)s - %(message)s"
 logging.basicConfig(stream = sys.stdout, filemode = "w", format = Log_Format, level = logging.INFO)
 logger = logging.getLogger()
@@ -35,7 +34,6 @@ original_utility = utility.copy()
 logger.info("Imports DONE")
 
 ################################################################################
-
 
 '''
 This function plots the time complexity of the four algorithms(jaccard
@@ -125,18 +123,26 @@ def evaluatePredictions(num_folds):
 
 if __name__=='__main__':
 
-  command = input("Select the operation you want to do:\n\n[1] Fill the blanks of the utility matrix using the Hybrid recommendation system(LSH + CF + Content based)\n[2] Fill the blanks of the utility matrix using Collaborative filtering with LSH(LSH + CF)\n[3] Evaluate the performance of LSH wrt the performance of running the algorithm without LSH\n[4] Compare the RMSE and the MAE of running the algorithm using all the following methods\n\ta. Collaborative filtering with LSH(LSH + CF)\n\tb. Hybrid recommendation system with LSH(LSH + CF + content based)\n\tc. random ratings prediction\n\n[5] Measure time performance and error rate increasing the signature matrix size\n[6] Measure time performance and error rate increasing the number of rows per band of LSH\n Choice: ")  
+  command = input("Select the operation you want to do:\n\n[1] Fill the blanks of the utility matrix \n[2] Evaluate the time performance of CF + LSH wrt the performance of running the it without LSH\n[3] Compare the RMSE and the MAE of the algorithm following algorithms\n\t- Collaborative filtering with LSH(LSH + CF)\n\t- Hybrid recommendation system with LSH(LSH + CF + content based)\n\t- random ratings prediction\n\n[4] Measure time performance and error rate increasing the signature matrix size\n[5] Measure time performance and error rate increasing the number of rows per band of LSH\n\nChoice: ")  
   if command == '1':
-    predictUtilityMatrix(LSH_method="simhash", hybrid=True)
-  if command == '2':
-    predictUtilityMatrix(LSH_method="simhash", hybrid=False)
-  elif command == '3':
+    
+    method = input("\n\nSelect the algorithm to use for filling the blanks of the utility matrix: \n\t[1] Collaborative filtering with LSH-MinHash(LSH + CF) \n\t[2] Collaborative filtering with LSH-SimHash(LSH + CF) \n\t[3] Hybrid recommendation system(LSH + CF + Content based)\n\nChoice: ")
+    if method == '1':
+      predictUtilityMatrix(LSH_method="minhash", hybrid=False)
+    elif method == '2':
+      predictUtilityMatrix(LSH_method="simhash", hybrid=False)
+    elif method == '3':
+      predictUtilityMatrix(LSH_method="simhash", hybrid=True)
+    else:
+      logger.error("Wrong Input, try again!")
+
+  elif command == '2':
     time_complexity_vals = plotTimeComplexityCurve()
-  elif command=='4':
+  elif command == '3':
     fold_rmse, fold_mae = evaluatePredictions(num_folds=10)
-  elif command=='5':
+  elif command=='4':
     rows, error_rate, correctly_estimated, time_to_run, avg_candidates = ev.plot_rows_curve(utility, "cosine")
-  elif command=='6':
+  elif command=='5':
     rows_per_band, error_rate, correctly_estimated, time_to_run, avg_candidates = ev.plot_bands_curve(utility, "cosine")
   else:
     logger.error("Wrong Input, try again!")

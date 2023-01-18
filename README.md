@@ -26,26 +26,26 @@ Select the operation you want to do:
 ```
 3. > Enter the requested option by digiting the appropriate number. 
 
-In each of the aforementioned option it is used a different algorithm and the outcomes are diversify to save some time while testing the program.
+In each of the aforementioned options it is used a different algorithm and the outcomes are diversified to save some time while testing the program.
 
-Here a descriprion of what each option returns:
+Here is a description of what each option returns:
 
-1. Return the complete Utility Matrix by using the Hybrid recommendation system that we propose; it uses LSH first to find candidate pairs, then apply Collaborative Filtering approach, then the retrived results are used as input for the Content-Based approach.
+1. Return the complete Utility Matrix by using the Hybrid recommendation system that we propose; it uses LSH first to find candidate pairs, then apply a Collaborative Filtering approach, then the retrieved results are used as input for the Content-Based approach.
 
-2. Return the complete Utility Matrix by using LSH and the Collaborative Filtering approach, this run only the first part of the Hybrid Recommendation System.
+2. Return the complete Utility Matrix by using LSH and the Collaborative Filtering approach, this runs only the first part of the Hybrid Recommendation System.
 
 3. Compare the performance between the algorithm if it uses LSH or if it doesn't
 
-4. This evaluate the accuracy of the algorithms by comparing the RMSE and the MAE 
-of the outcomes. **USE IT CAREFULLY, it takes few hours to complete alle the evaluations.** It runs 3 types of algorithms which are:
+4. This evaluates the accuracy of the algorithms by comparing the RMSE and the MAE 
+of the outcomes. **USE IT CAREFULLY, it takes a few hours to complete all the evaluations.** It runs 3 types of algorithms which are:
     * Collaborative filtering with LSH(LSH + CF)
-    * Hybrid recommendation system with LSH(LSH + CF + content based)
-    * random ratings prediction
-5. This return the perfomance measures in term of time and error rate by increasing at each step the signature matrix size
-6. This return the perfomance measures in term of time and error rate by increasing at each step the number of rows in each band of LSH
+    * Hybrid recommendation system with LSH(LSH + CF + content-based)
+    * random rating prediction
+5. This return the performance measures in term of time and error rate by increasing at each step the signature matrix size
+6. This return the performance measures in term of time and error rate by increasing at each step the number of rows in each band of LSH
 
 ## Algorithm description and evaluation
-The entire descriprion of the algorithm is reported in the paper **HERE ADD DOCUMENTATION FOLDER** explaing the procedure and the development of the algorithm. In the aforementioned paper are described also the tests and the performance evaluations.
+The entire description of the algorithm is reported in the paper **HERE ADD DOCUMENTATION FOLDER** explaining the procedure and the development of the algorithm. In the aforementioned paper are described also the tests and the performance evaluations.
 
 ## How to generate new datasets
 To generate new dataset and new utility matrix, it is necessary to run the `dataGenerator.py` script. Further informations about the Dataset and how to generate new dataset are in the README.md inside the **[Dataset](https://github.com/FabrizioSandri/data-mining-project/tree/main/Dataset)** folder

@@ -27,7 +27,7 @@ Arguments:
     synthetic
 '''
 def csvSaver(dataName, dataset, header, index, dataset_type):
-    if dataset_type=="s":
+    if dataset_type=="s" or dataset_type=='s':
         path = "data/synthetic/" + dataName
     else:
         path = "data/real/" + dataName

@@ -14,12 +14,12 @@ logger = logging.getLogger()
 sparsity = 0.6
 
 def main():
-    command = input("Would you like to generate synthetic [s] dataset or real dataset [r]? ")
+    dataset_type = input("Would you like to generate synthetic [s] dataset or real dataset [r]? ")
     
-    if command == 's':
+    if dataset_type == 's':
         logger.info("Relational Table generation")
         relational_table = generateRelationalTable(10000, 100)
-    elif command == 'r':
+    elif dataset_type == 'r':
         logger.info("Importing the real relational table")
         relational_table = importCSV("data/scripts/adult.csv")
         csvSaver(dataName="relational_table.csv", dataset=relational_table, header=True, index=False, dataset_type="r")
@@ -29,7 +29,7 @@ def main():
     logger.info("User dataset generation")
     userArray = userGenerator(500, dataset_type)
     logger.info("Query DataSets Generation")
-    queryDataset = generateQueryDataset(relational_table, 2000, 10, False)
+    queryDataset = generateQueryDataset(relational_table, 2000, 10, dataset_type)
     logger.info("Utility Matrix DataSets Generation")
     utility_matrix = utilityMatrixGenerator(userArray, queryDataset, relational_table, sparsity, dataset_type)
     logger.info("Closing Generation Phase")

@@ -7,7 +7,7 @@ import math
 from sklearn.cluster import KMeans
 
 from .datasetUtility import csvSaver
-from .queries import queryResultsIds, generateQueryDataset, querySimilarityMatrix
+from .queries import queryResultsIds, generateQueryDataset
 
 '''
 This function generate the dataset of users
@@ -248,7 +248,10 @@ def utilityMatrixGenerator(userArray, queryDataset, relational_table, sparsity, 
 
     utilityDataset = pd.DataFrame(utilityMatrix, columns=columns_label, index=userArray)
     csvSaver(dataName="utility_matrix.csv", dataset=utilityDataset, header=False, index=True, dataset_type=dataset_type)
-    query_header_prepender("Dataset/dataFolder/utility_matrix.csv", columns_label)
+    if dataset_type=="s":
+        query_header_prepender("data/synthetic/utility_matrix.csv", columns_label)
+    else:
+        query_header_prepender("data/real/utility_matrix.csv", columns_label)
     
     return utilityDataset
 

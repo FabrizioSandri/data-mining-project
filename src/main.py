@@ -12,7 +12,7 @@ import logging
 import sys
 
 # either "synthetic" or "real"
-DATASET_TYPE = "synthetic"
+DATASET_TYPE = "real"
 
 ################################################################################
 
@@ -28,7 +28,7 @@ utility_df = pd.read_csv("data/" +  DATASET_TYPE +"/utility_matrix.csv", index_c
 utility_df.fillna(0, inplace=True)
 
 user_set = pd.read_csv("data/" +  DATASET_TYPE +"/user_set.csv", header=None)
-user_set = pd.read_csv("data/" +  DATASET_TYPE +"/query_set.csv", index_col=0, header=None)
+query_set = pd.read_csv("data/" +  DATASET_TYPE +"/query_set.csv", index_col=0, header=None)
 relational_table = pd.read_csv("data/" +  DATASET_TYPE +"/relational_table.csv")
 relational_table = relational_table.convert_dtypes()
 
@@ -97,7 +97,7 @@ def predictUtilityMatrix(LSH_method="simhash", hybrid=True):
   predicted_utility_df.columns = utility_df.keys()
   predicted_utility_df.index = utility_df.index
   predicted_utility_df = predicted_utility_df.convert_dtypes()
-  predicted_utility_df.to_csv("data/" +  DATASET_TYPE + "predicted_utility.csv")
+  predicted_utility_df.to_csv("data/" +  DATASET_TYPE + "/predicted_utility.csv")
 
 ################################################################################
 

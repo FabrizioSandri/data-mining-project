@@ -31,13 +31,24 @@ used for testing the algorithms; please refer to
 
 ### How to run the algorithm
 
-To run the algorithm you have to place yourself in the root of this repository
-and run the following command:
+You must supply a valid dataset before executing the algorithm; for additional
+information on how to do so, go to the preceding section. Otherwise, you can
+pick from one of the ones that are already in the `data` folder. In all
+instances, after creating the dataset inside the `data` folder and giving it a
+name like `datasetX`, you must specify which dataset to use for making
+recommendations. To do this, you must change the `DATASET_TYPE` variable in the
+first few lines of `src/main.py` and set it to the name of your new dataset. In
+the preceding example, if we generated a dataset `data/datasetX`, we would need
+to set `DATASET_TYPE="datasetX"` (without the `data/` prefix) in order to use
+it. 
+
+Once the dataset is ready to run the algorithm you have to place yourself in the
+root of this repository and run the following command:
 ```shell
 python3 src/main.py
 ```
 
-The program will ask what operation to run:
+The program will ask you which action to take: 
 ```
 [1] Fill the blanks of the utility matrix 
 [2] Compare the time performance of CF + LSH wrt CF (without LSH)
@@ -51,11 +62,11 @@ The program will ask what operation to run:
 
 Select one option:
 ```
-Here option `1` runs the algorithms, whereas options `2-5` runs the experiments.
-Once you select option `1` you will be prompted with another message asking for
-the version of the algorithm to run. Since the final algorithm has been created
-one block at a time, this prompt allows to choose the version of the algorithm
-to run.
+In this case, option `1` executes the algorithms, whereas choices `2` through
+`5` do the experiments. Once you select option `1` you will be prompted with
+another message asking for the version of the algorithm to run. Since the final
+algorithm was built one block at a time, this prompt allows you to select which
+version of the algorithm to execute. 
 
 ```
 Select the algorithm to use for filling the blanks of the utility matrix: 
@@ -63,10 +74,9 @@ Select the algorithm to use for filling the blanks of the utility matrix:
 	[2] Collaborative filtering with LSH-SimHash(LSH + CF) 
 	[3] Hybrid recommendation system(LSH + CF + Content based)
 
-Select one option: 1
+Select one option: 
 ```
-Enter the requested option by digiting the appropriate number. Here is a
-description of which version of the algorithm each option runs:
+Enter the proper number to select the desired option. Here's a breakdown of which version of the algorithm each option uses: 
 1. this option fills the missing ratings of the utility matrix by running
    collaborative filtering(CF) combined with LSH using the **MinHash** technique
    for LSH. This algorithm requires few seconds to complete it's execution.
@@ -80,18 +90,20 @@ description of which version of the algorithm each option runs:
    system**. This algorithm may take several minutes to complete it's execution.
    
    
-Once the aforementioned algorithms stop, the utility matrix filled with the
+Once the aforementioned algorithm stops, the utility matrix filled with the
 missing ratings will be located in the `data/synthetic` or `data/real` folder
-containing the datasets, under the name of `predicted_utility.csv`.
+containing the datasets, under the name of `predicted_utility.csv`. If you used
+a custom dataset than the file `predicted_utility.csv` will be located inside
+that dataset folder.
 
 
 ### Experimental evaluation tests
 
-As already discussed option `1` allows to run the various version of the
-recommendation system, whereas the other options are all meant to measure the
-quality of the recommendation system both in terms of time performance and also
-in therms of accuracy of the recommendations. Recall the prompt showed after
-running 
+As previously noted, option `1` provides for the execution of several versions
+of the recommendation system, whilst the other choices are all intended to
+assess the quality of the recommendation system in terms of both time
+performance and recommendation accuracy. Remember the prompt that appeared after
+executing `python3 src/main.py`:
 ```
 > python3 src/main.py
 

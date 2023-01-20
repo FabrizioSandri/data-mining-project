@@ -2,9 +2,7 @@ This folder contains two kind of datasets:
 * synthetic
 * real
 
-
-
-## FOLDER STRUCTURE 
+## Folder structure
 
 This directory contains the following three sub-folders:
 * synthetic: synthetic dataset csv file
@@ -12,30 +10,35 @@ This directory contains the following three sub-folders:
 * scripts: the scripts used to generate the datasets
 
 Both the synthetic and real dataset folders follows the following structure:
-
 ├── query_set.csv : the query set
-
 ├── relational_table.csv : the relational table
-
 ├── user_set.csv : the user set
-
 └── utility_matrix.csv : the utility matrix
 
 
-
-## HOW TO USE THE SCRIPTS 
+## How to use the scripts
 
 The main script is the `dataGenerator.py` script which once is run asks to the
 user which kind of dataset to generate, either synthetic or real. The generated
-datasets can be found inside the `dataFolder` folder. In order to obtain some
-useful information from the datasets we created a `performance.py` script which
-allows to measure the number of queries that returns at least one row and the
-number of queries that returns no row. In addition this script allows to measure
-the average amount of rows returned by the queries.
+datasets can be found inside the `real` or `synthetic` folders, depending on the
+choice of the dataset to generated. In order to obtain some useful information
+from the datasets we created a `performance.py` script which allows to measure
+the number of queries that returns at least one row and the number of queries
+that returns no row. In addition this script allows to measure the average
+amount of rows returned by the queries.
+
+The script `dataGenerator.py` must be run from the root of the repository otherwise the script won't work, i.e.
+```shell
+> python data/scripts/dataGenerator.py
+
+Would you like to generate synthetic [s] dataset or real dataset [r]?
+```
+
+The generator script asks if yoi want to generate a synthetic dataset or a real
+one(based on a real relational table).
 
 
-
-## DETAILED DESCRIPTION OF THE DATASETS 
+## Detailed description of the datasets 
 
 The datasets were artificially constructed to as closely resemble a real-world
 scenario. In particular, the synthetic datasets were produced starting with a
@@ -87,7 +90,7 @@ Note: the utility matrix is generated with a sparsity of 60% of the total.
 
 
 
-## SYNTHETIC DATASET CHARACTERISTICS
+## Synthetic dataset characteristics
 
 The synthetic dataset is created as previously described using a relational
 table with 100 features over a total of 10000 rows, and in addition, the values
@@ -110,7 +113,7 @@ smaller portions for even more specific experiments.
 
 
 
-## REAL DATASET CHARACTERISTICS
+## Real dataset characteristics
 
 Relational tables typically contain experimental observations of real data; as a
 result, the solutions proposed in this work are also evaluated on a dataset in

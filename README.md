@@ -1,53 +1,143 @@
 # Data mining project 2022/2023
-## Query recommendation system
-In this repository, there is all the material developed to complete the Data Mining Course 2022 project. The course was held at the University of Trento by prof. Yannis Velegrakis.
-This Project is developed by **[Fabrizio Sandri](https://github.com/FabrizioSandri)** and **[Erik Nielsen](https://github.com/NielsenErik)**.
-The objectives are to develop a sophisticated query recommendation system, then test and evaluate the build algorithm.
 
-## How to run the algorithm
-In this section it is explianed how to run the Python script generated to developed the algorithm.
-1. > Run on terminal the main.py script
+This repository contains all the material for the Data Mining Course project.
+The course was held at the University of Trento by prof. Yannis Velegrakis. This
+Project is developed by **[Fabrizio Sandri](https://github.com/FabrizioSandri)**
+and **[Erik Nielsen](https://github.com/NielsenErik)**. The objective is to
+develop a sophisticated query recommendation system, testing and evaluate the
+solution.
+
+## Requirements
+Make sure to install the following Python libraries on your machine before
+running the algorithms:
+* [matplotlib](https://pypi.org/project/matplotlib/)
+* [numpy](https://pypi.org/project/numpy/)
+* [pandas](https://pypi.org/project/pandas/)
+* [scikit_learn](https://pypi.org/project/scikit-learn/)
+
+## Usage
+
+This repository is structured in this way:
+* `data` contains the datasets along with the scripts used to generate the
+  datasets
+* `doc` contains the latex source code of the paper
+* `src` contains the source code of the algorithms devised as solutions for this
+  problem
+
+### How to generate a new dataset
+The `data/scripts` folder contains all the scripts used to generate the datasets
+used for testing the algorithms; please refer to
+[data/README.md](data/README.md) for instructions on how to use the scripts.
+
+### How to run the algorithm
+
+To run the algorithm you have to place yourself in the root of this repository
+and run the following command:
+```shell
+python3 src/main.py
 ```
-python3 main.py
+
+The program will ask what operation to run:
 ```
-2. > The program will show on terminal the following options:
-Select the operation you want to do:
+[1] Fill the blanks of the utility matrix 
+[2] Compare the time performance of CF + LSH wrt CF (without LSH)
+[3] Evaluate the accuracy(RMSE and MAE) of the following algorithms
+	- Collaborative filtering with LSH(LSH + CF)
+	- Hybrid recommendation system with LSH(LSH + CF + content based)
+	- random ratings prediction
+
+[4] Measure time performance and error rate increasing the signature matrix size
+[5] Measure time performance and error rate increasing the number of rows per band of LSH
+
+Select one option:
 ```
-[1] Fill the blanks of the utility matrix using the Hybrid recommendation system(LSH + CF + Content based)
-[2] Fill the blanks of the utility matrix using Collaborative filtering with LSH(LSH + CF)
-[3] Evaluate the performance of LSH wrt the performance of running the algorithm without LSH
-[4] Compare the RMSE and the MAE of running the algorithm using all the following methods
-        a. Collaborative filtering with LSH(LSH + CF)
-        b. Hybrid recommendation system with LSH(LSH + CF + content based)
-        c. random ratings prediction
+Here option `1` runs the algorithms, whereas options `2-5` runs the experiments.
+Once you select option `1` you will be prompted with another message asking for
+the version of the algorithm to run. Since the final algorithm has been created
+one block at a time, this prompt allows to choose the version of the algorithm
+to run.
 
-[5] Measure time performance and error rate increasing the signature matrix size
-[6] Measure time performance and error rate increasing the number of rows per band of LSH
 ```
-3. > Enter the requested option by digiting the appropriate number. 
+Select the algorithm to use for filling the blanks of the utility matrix: 
+	[1] Collaborative filtering with LSH-MinHash(LSH + CF) 
+	[2] Collaborative filtering with LSH-SimHash(LSH + CF) 
+	[3] Hybrid recommendation system(LSH + CF + Content based)
 
-In each of the aforementioned options it is used a different algorithm and the outcomes are diversified to save some time while testing the program.
+Select one option: 1
+```
+Enter the requested option by digiting the appropriate number. Here is a
+description of which version of the algorithm each option runs:
+1. this option fills the missing ratings of the utility matrix by running
+   collaborative filtering(CF) combined with LSH using the **MinHash** technique
+   for LSH. This algorithm requires few seconds to complete it's execution.
+2. this option fills the missing ratings of the utility matrix by running
+   collaborative filtering(CF) combined with LSH using the **SimHash** technique
+   for LSH. This algorithm requires few seconds to complete it's execution.
+3. this option fills the missing ratings of the utility matrix by running
+   collaborative filtering(CF) combined with LSH using the SimHash technique and
+   on top of this runs a content based recommendation system to further improve
+   the accuracy of the recommendations: this it the **hybrid recommendation
+   system**. This algorithm may take several minutes to complete it's execution.
+   
+   
+Once the aforementioned algorithms stop, the utility matrix filled with the
+missing ratings will be located in the `data/synthetic` or `data/real` folder
+containing the datasets, under the name of `predicted_utility.csv`.
 
-Here is a description of what each option returns:
 
-1. Return the complete Utility Matrix by using the Hybrid recommendation system that we propose; it uses LSH first to find candidate pairs, then apply a Collaborative Filtering approach, then the retrieved results are used as input for the Content-Based approach.
+### Experimental evaluation tests
 
-2. Return the complete Utility Matrix by using LSH and the Collaborative Filtering approach, this runs only the first part of the Hybrid Recommendation System.
+As already discussed option `1` allows to run the various version of the
+recommendation system, whereas the other options are all meant to measure the
+quality of the recommendation system both in terms of time performance and also
+in therms of accuracy of the recommendations. Recall the prompt showed after
+running 
+```shell
+> python3 src/main.py
 
-3. Compare the performance between the algorithm if it uses LSH or if it doesn't
+[1] Fill the blanks of the utility matrix 
+[2] Compare the time performance of CF + LSH wrt CF (without LSH)
+[3] Evaluate the accuracy(RMSE and MAE) of the following algorithms
+	- Collaborative filtering with LSH(LSH + CF)
+	- Hybrid recommendation system with LSH(LSH + CF + content based)
+	- random ratings prediction
 
-4. This evaluates the accuracy of the algorithms by comparing the RMSE and the MAE 
-of the outcomes. **USE IT CAREFULLY, it takes a few hours to complete all the evaluations.** It runs 3 types of algorithms which are:
-    * Collaborative filtering with LSH(LSH + CF)
-    * Hybrid recommendation system with LSH(LSH + CF + content-based)
-    * random rating prediction
-5. This return the performance measures in term of time and error rate by increasing at each step the signature matrix size
-6. This return the performance measures in term of time and error rate by increasing at each step the number of rows in each band of LSH
+[4] Measure time performance and error rate by increasing the signature matrix size (CF + LSH)
+[5] Measure time performance and error rate by increasing the number of rows per band of LSH (CF + LSH)
+
+Select one option:
+```
+
+Here is a description of options `2-5`:
+
+2. Measure and plot the time performance of running the first version of the
+   algorithm using collaborative filtering only, by first running it without LSH
+   and then applying LSH. The test compares the versions of CF + LSH for both
+   MinHash and SimHash 
+
+3. This evaluates the accuracy in terms of RMSE and MAE of the recommendations
+   of four different versions of the algorithm:
+   * Collaborative filtering with LSH(MinHash)
+   * Collaborative filtering with LSH(SimHash)
+   * Hybrid recommendation system
+   * Random recommendation system: makes random recommendations
+
+> Given that the Hybrid recommendation system is relatively slow compared to the
+> other algorithms, the execution of this test may take 2-3 hours to complete
+
+4. This options allows to measure and plot the time performance and the error
+   rate of finding similar queries by increasing at each step the signature
+   matrix size in terms of rows(CF + LSH)
+
+5. This options allows to measure and plot the time performance and the error
+   rate of finding similar queries by increasing at each step the number of rows
+   per band of LSH(CF + LSH)
+
+The last two options(`4` and `5`) are meant to find good parameters for the
+number of rows of the signature matrix and the number of rows per band of LSH.
 
 ## Algorithm description and evaluation
-The entire description of the algorithm is reported in the paper **HERE ADD DOCUMENTATION FOLDER** explaining the procedure and the development of the algorithm. In the aforementioned paper are described also the tests and the performance evaluations.
-
-## How to generate new datasets
-To generate new dataset and new utility matrix, it is necessary to run the `dataGenerator.py` script. Further informations about the Dataset and how to generate new dataset are in the README.md inside the **[Dataset](https://github.com/FabrizioSandri/data-mining-project/tree/main/Dataset)** folder
-## Dataset generator description
-All the description about the Dataset are in the README.md inside the **[Dataset](https://github.com/FabrizioSandri/data-mining-project/tree/main/Dataset)** folder
+The entire description of the algorithm is reported in the paper **HERE ADD
+DOCUMENTATION FOLDER** explaining the procedure and the development of the
+algorithm. In the aforementioned paper are described also the tests and the
+performance evaluations.

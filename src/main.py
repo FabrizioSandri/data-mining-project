@@ -11,6 +11,9 @@ import matplotlib.pyplot as plt
 import logging
 import sys
 
+# either "synthetic" or "real"
+DATASET_TYPE = "synthetic"
+
 ################################################################################
 
 # Creating and Configuring Logger
@@ -21,11 +24,12 @@ logger = logging.getLogger()
 #### Import the datasets
 logger.info("Importing Datasets")
 
-utility_df = pd.read_csv("Dataset/dataFolder/utility_matrix.csv", index_col=0)
+utility_df = pd.read_csv("data/" +  DATASET_TYPE +"/utility_matrix.csv", index_col=0)
 utility_df.fillna(0, inplace=True)
 
-query_set = pd.read_csv("Dataset/dataFolder/query_set.csv", index_col=0, header=None)
-relational_table = pd.read_csv("Dataset/dataFolder/relational_table.csv")
+user_set = pd.read_csv("data/" +  DATASET_TYPE +"/user_set.csv", header=None)
+user_set = pd.read_csv("data/" +  DATASET_TYPE +"/query_set.csv", index_col=0, header=None)
+relational_table = pd.read_csv("data/" +  DATASET_TYPE +"/relational_table.csv")
 relational_table = relational_table.convert_dtypes()
 
 utility = utility_df.to_numpy()
@@ -92,7 +96,8 @@ def predictUtilityMatrix(LSH_method="simhash", hybrid=True):
   predicted_utility_df = pd.DataFrame(predicted_utility)
   predicted_utility_df.columns = utility_df.keys()
   predicted_utility_df.index = utility_df.index
-  predicted_utility_df.to_csv("predicted_utility.csv")
+  predicted_utility_df = predicted_utility_df.convert_dtypes()
+  predicted_utility_df.to_csv("data/" +  DATASET_TYPE + "predicted_utility.csv")
 
 ################################################################################
 
@@ -123,10 +128,10 @@ def evaluatePredictions(num_folds):
 
 if __name__=='__main__':
 
-  command = input("Select the operation you want to do:\n\n[1] Fill the blanks of the utility matrix \n[2] Evaluate the time performance of CF + LSH wrt the performance of running the it without LSH\n[3] Compare the RMSE and the MAE of the algorithm following algorithms\n\t- Collaborative filtering with LSH(LSH + CF)\n\t- Hybrid recommendation system with LSH(LSH + CF + content based)\n\t- random ratings prediction\n\n[4] Measure time performance and error rate increasing the signature matrix size\n[5] Measure time performance and error rate increasing the number of rows per band of LSH\n\nChoice: ")  
+  command = input("\n[1] Fill the blanks of the utility matrix \n[2] Compare the time performance of CF + LSH wrt CF (without LSH)\n[3] Evaluate the accuracy(RMSE and MAE) of the following algorithms\n\t- Collaborative filtering with LSH(LSH + CF)\n\t- Hybrid recommendation system with LSH(LSH + CF + content based)\n\t- random ratings prediction\n\n[4] Measure time performance and error rate by increasing the signature matrix size (CF + LSH)\n[5] Measure time performance and error rate by increasing the number of rows per band of LSH (CF + LSH)\n\nSelect one option: ")  
   if command == '1':
     
-    method = input("\n\nSelect the algorithm to use for filling the blanks of the utility matrix: \n\t[1] Collaborative filtering with LSH-MinHash(LSH + CF) \n\t[2] Collaborative filtering with LSH-SimHash(LSH + CF) \n\t[3] Hybrid recommendation system(LSH + CF + Content based)\n\nChoice: ")
+    method = input("\nSelect the algorithm to use for filling the blanks of the utility matrix: \n\t[1] Collaborative filtering with LSH-MinHash(LSH + CF) \n\t[2] Collaborative filtering with LSH-SimHash(LSH + CF) \n\t[3] Hybrid recommendation system(LSH + CF + Content based)\n\nSelect one option: ")
     if method == '1':
       predictUtilityMatrix(LSH_method="minhash", hybrid=False)
     elif method == '2':

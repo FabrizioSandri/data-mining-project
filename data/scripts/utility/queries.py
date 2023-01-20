@@ -11,12 +11,13 @@ Arguments:
     relational_table: the pandas dataframe containing the relational table
     numQueries: how many queries to generate
     max_conditions: the maximum number of conditions for a single query.
-    real: specify whether the generated dataset should be real or synthetic
+    dataset_type: specify whether the generated dataset should be real or 
+        synthetic
 
 Returns:
     The query set as a pandas dataframe
 '''
-def generateQueryDataset(relational_table, numQueries, max_conditions = 20, real = False):
+def generateQueryDataset(relational_table, numQueries, max_conditions, dataset_type):
     relational_table = relational_table.convert_dtypes()
     rows, features = relational_table.shape
     q_set = []
@@ -48,7 +49,7 @@ def generateQueryDataset(relational_table, numQueries, max_conditions = 20, real
 
     indexes = ["Q" + str(i) for i in range(numQueries)]
     queryDataset = pd.DataFrame(q_set, index=indexes)
-    csvSaver(dataName="query_set.csv", dataset=queryDataset, header=False, index=True)
+    csvSaver(dataName="query_set.csv", dataset=queryDataset, header=False, index=True, dataset_type=dataset_type)
 
     return queryDataset
 

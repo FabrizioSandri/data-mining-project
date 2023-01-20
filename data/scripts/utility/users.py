@@ -14,17 +14,19 @@ This function generate the dataset of users
 
 Arguments:
   nUser: the number of users of the entire system
+  dataset_type: specify whether the generated dataset should be real or 
+    synthetic
 
 Returns:
   An array of user ids 
 '''
-def userGenerator(nUser):
+def userGenerator(nUser, dataset_type):
     userArray = []
     for i in range(1, nUser):
         idUsr = "user" + str(i)
         userArray.append(idUsr)
     userDataset = pd.DataFrame(userArray)
-    csvSaver(dataName="user_set.csv", dataset=userDataset, header=False, index=False)
+    csvSaver(dataName="user_set.csv", dataset=userDataset, header=False, index=False, dataset_type=dataset_type)
     return userArray
 
 '''
@@ -179,11 +181,13 @@ Arguments:
   relational_table: the relational table containing all the tuples
   sparsity: how much of the utility matrix should be made sparse, i.e. the 
     ratings converted to 0(missing rating) 
+  dataset_type: specify whether the generated dataset should be real or 
+    synthetic
 
 Returns:
   The utility matrix filled with the ratings
 '''
-def utilityMatrixGenerator(userArray, queryDataset, relational_table, sparsity = 0.3):
+def utilityMatrixGenerator(userArray, queryDataset, relational_table, sparsity, dataset_type):
     utilityMatrix = []
     nUsers = len(userArray)
 
@@ -243,7 +247,7 @@ def utilityMatrixGenerator(userArray, queryDataset, relational_table, sparsity =
         utilityMatrix[row][column] = None
 
     utilityDataset = pd.DataFrame(utilityMatrix, columns=columns_label, index=userArray)
-    csvSaver(dataName="utility_matrix.csv", dataset=utilityDataset, header=False, index=True)
+    csvSaver(dataName="utility_matrix.csv", dataset=utilityDataset, header=False, index=True, dataset_type=dataset_type)
     query_header_prepender("Dataset/dataFolder/utility_matrix.csv", columns_label)
     
     return utilityDataset

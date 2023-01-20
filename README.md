@@ -122,8 +122,8 @@ Here is a description of options `2-5`:
    * Hybrid recommendation system
    * Random recommendation system: makes random recommendations
 
-> Given that the Hybrid recommendation system is relatively slow compared to the
-> other algorithms, the execution of this test may take 2-3 hours to complete
+Note: Given that the Hybrid recommendation system is relatively slow compared to
+the other algorithms, the execution of this test may take 2-3 hours to complete
 
 4. This options allows to measure and plot the time performance and the error
    rate of finding similar queries by increasing at each step the signature

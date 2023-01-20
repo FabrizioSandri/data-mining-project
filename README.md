@@ -92,7 +92,7 @@ recommendation system, whereas the other options are all meant to measure the
 quality of the recommendation system both in terms of time performance and also
 in therms of accuracy of the recommendations. Recall the prompt showed after
 running 
-```shell
+```
 > python3 src/main.py
 
 [1] Fill the blanks of the utility matrix 
@@ -137,7 +137,7 @@ The last two options(`4` and `5`) are meant to find good parameters for the
 number of rows of the signature matrix and the number of rows per band of LSH.
 
 ## Algorithm description and evaluation
-The entire description of the algorithm is reported in the paper **HERE ADD
-DOCUMENTATION FOLDER** explaining the procedure and the development of the
-algorithm. In the aforementioned paper are described also the tests and the
-performance evaluations.
+The entire description of the algorithm is reported in the paper that can be
+found inside the [/doc](/doc) folder, explaining the procedure and the
+development of the algorithm. The experimental evaluation of the algorithms is
+also detailed in the report. 

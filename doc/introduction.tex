@@ -1,0 +1,25 @@
+\section{Introduction}
+
+Data became omnipresent in the last decade, and with it came the necessity to store massive volumes of data in an effective manner. Databases became the standard method for storing logically modeled collections of information in an efficient manner. Since the 1970s, most database management systems have been designed around the relational model\cite{relational_model} where the most fundamental elements that characterize it are relations, commonly referred to as tables. A relation is a collection of tuples, or table rows, each of which shares a set of characteristics, or table columns. The most typical method of retrieving data from a DBMS is to send a query, or a structured request for a set of data. 
+
+Let's suppose that we have access to a large number of queries that each user submits to a database management system (DBMS), each of which is associated with a rating that indicates how satisfied the user is with the query's outcome. In particular, let's assume that our DBMS is made up of a single relation that allows users to submit multiple queries to retrieve data. The question that remains is whether we can exploit all of this data to suggest queries to users based on previous interests. 
+
+% Why you think that such a study is important? 
+Making recommendations is essential in many fields, starting with e-commerce websites where these systems attempt to suggest the best products that match the user's interest in order to improve sales. This methodology is used in e-commerce as well as libraries, as in the case of the aforementioned Grundy system. Another example is the case of streaming services that attempt to match the user with the movie that best suits their preferences. 
+
+%Introduction to the recommendation system
+These systems are usually based on the so-called \emph{Utility Matrix}, which represents all the data about how each user preferences a specific item of the service.
+The matrix itself has some blank spaces, as usually the users don't have recorded data about each item of the matrix.
+The goal of the previously mentioned Recommendation Systems is to provide some algorithms able to predict the values of the blank spaces inside the matrix.
+
+
+% why it is challenging (i.e., not trivial) to perform this processing? What were the hard/challenging parts in developing a solution?
+There is an infinite amount of ways to create a recommendation system, starting with the two fundamental approaches: content based or collaborative filtering. These are not the only ones; in fact, clustering is another option that can be taken into account while looking for groups of commonalities that can suggest one thing to another member of the same group. Each of these approaches must cope with the problem of dealing with huge amount of data and finding the best recommendation in the shortest amount of time; in most of the cases, it shouldn't take more than a few seconds to find a good recommendation, as is the case with e-commerce websites where the customer can see recommendations right away. In general, making recommendations based on massive volumes of data is still a challenging research problem. 
+
+% introduction to databases and query and the problem statement
+As recommendation systems are mainly based on already existing data, the presence of some sort of database is necessary for the workflow of the algorithm.
+These databases are usually tables organized in rows and columns, built with the purpose to have an easy architecture and more understandable data. In this paper, we show how locality sensitive hashing can be exploited to improve similar items search for finding queries in a quick way to provide recommendation to a user that is consulting a needed database.
+
+%% La seguente definizione di query la integrerei nella prima parte dell'introduzione dove parliamo di query. 
+%% To retrieve pieces of information from the database, it is important to introduce the concept of query, which is a set of conditions that filter the database and return only the needed data.
+

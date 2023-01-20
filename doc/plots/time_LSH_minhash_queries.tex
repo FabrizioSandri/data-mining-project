@@ -1,0 +1,51 @@
+
+\begin{figure}[h]        
+    \begin{tikzpicture}
+    \begin{axis}[
+        xlabel=Number of queries,
+        ylabel=Time (seconds),
+        height=6cm,
+        width = 0.5*\textwidth,
+        grid = both,
+        minor tick num = 1,
+        major grid style = {lightgray},
+        minor grid style = {lightgray!25},
+        legend cell align = {left},
+        legend pos = north west
+    ]
+    
+    % Add values and attributes for the first plot
+    \addplot[color=red,mark=*] coordinates {
+    	(100, 1)
+    	(200, 4)
+    	(300, 9)
+    	(400, 16)
+    	(500, 25)
+    	(600, 36)
+    	(700, 48)
+    	(800, 63)
+    	(900, 80)
+    	(1000, 100)
+    };
+    
+    % Add values and attributes for the second plot
+    \addplot[color=blue,mark=*] coordinates {
+    	(100, 0)
+    	(200, 0)
+    	(300, 1)
+    	(400, 1)
+    	(500, 2)
+    	(600, 3)
+    	(700, 3)
+    	(800, 4)
+    	(900, 5)
+    	(1000, 7)
+    };
+    
+    \legend{Baseline solution Jaccard,LSH with MinHash}
+    \end{axis}
+    \end{tikzpicture}
+    
+    \caption{\normalfont Time performance of the Naive algorithm compared with LSH using MinHash – Variable number of queries}
+    \label{fig:lsh_minhash_queries}
+\end{figure}

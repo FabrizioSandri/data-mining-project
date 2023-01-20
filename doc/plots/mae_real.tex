@@ -1,0 +1,77 @@
+
+\begin{figure}[h]        
+    \begin{tikzpicture}
+    \begin{axis}[
+        xlabel=Fold,
+        ylabel=MAE,
+        height=6cm,
+        width = 0.5*\textwidth,
+        grid = both,
+        minor tick num = 1,
+        ytick={5,10,15,20,25,30,35,40,45,50},
+        major grid style = {lightgray},
+        minor grid style = {lightgray!25},
+        legend cell align = {left},
+        legend columns=2,
+        legend style={/tikz/every even column/.append style={column sep=0.5cm}, at={(0.5,1.25)},anchor=north}
+    ]
+    
+    \addplot[color=red,mark=*] coordinates {
+        (1,19.73679405481403)
+        (2,19.92254459802436)
+        (3,19.805412018186136)
+        (4,19.86006171599686)
+        (5,19.676283163218727)
+        (6,19.983055489619662)
+        (7,19.735242025307212)
+        (8,19.664378183942887)
+        (9,20.021144119634087)
+        (10,19.562838935855535)  
+    };
+    
+    \addplot[color=blue,mark=*] coordinates {
+        (1,20.02852082458415)
+        (2,20.159274745741047)
+        (3,19.937498858801835)
+        (4,20.15806964047693)
+        (5,19.926068617963374)
+        (6,20.195117497763253)
+        (7,19.843208501469864)
+        (8,19.84266072634981)
+        (9,20.13528219548268)
+        (10,19.998393192981176)
+    };
+
+    \addplot[color=black,mark=*] coordinates {
+        (1,12.40018624354082)
+        (2,12.609911077838845)
+        (3,12.33914583599613)
+        (4,12.260594883780378)
+        (5,12.598334763635036)
+        (6,12.454890718863549)
+        (7,12.790640349115343)
+        (8,12.282560666094547)
+        (9,12.837347307685285)
+        (10,11.92968393375573)
+    };
+
+    \addplot[color=orange,mark=*] coordinates {
+        (1,33.45105629302317)
+        (2,33.47504884328154)
+        (3,33.502766264356275)
+        (4,33.67190096225829)
+        (5,33.44486643416656)
+        (6,33.63322803878248)
+        (7,33.73885734109957)
+        (8,33.34922489820512)
+        (9,33.6432340643088)
+        (10,33.448372194934905)
+    };
+    
+    \legend{CF + LSH(MinHash), CF + LSH(SimHash), Hybrid, Random}
+    \end{axis}
+    \end{tikzpicture}
+    
+    \caption{\normalfont Mean absolute error measured on different folds of the real dataset.}
+    \label{fig:mae_real}
+\end{figure}

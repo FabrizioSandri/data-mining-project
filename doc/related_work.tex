@@ -1,0 +1,50 @@
+\section{Related work}
+
+The work that has been conducted so far in the field of recommendation systems has been focused on finding ways to exploit similarities in existing data to make recommendations. This prior knowledge can take on a variety of shapes; one well-known form is provided in terms of a utility matrix. It can also be obtained from other sources of information that draw on patterns that exploits similarities, such as user behaviours \cite{user_behaviour_rec}. 
+
+
+Depending on the kind of prior knowledge we have regarding the problem that is being attempted to solve, there are primarily two categories in which recommendation systems can be categorized; these methods are \emph{content-based filtering} and \emph{collaborative-filtering}. In addition to these two methods in the last few years emerged the necessity to combine the benefits of the two aforementioned methods into \emph{hybrid recommendation systems}.
+
+% intro to content based
+Content-based methods use a combination of the features associated with each product and the ratings given by each user to provide suggestions. This method requires the construction of user profiles that outline each user's preferences as well as item profiles that highlight a product's key features. 
+
+% Intro to collaborative filtering
+The collaborative-filtering method pushes the system to only consider the relationships between users and items, ignoring either the features of users or the characteristics of items: with this approach, the utility matrix's relationships are the sole thing being considered. It is possible to create collaborative-filtering recommendation systems by either locating similar items that may be of interest based on the user's past interests, this is called \emph{item-item collaborative filtering}, or by utilizing user similarities to recommend products that another user has rated highly, this is \emph{user-user collaborative filtering}; in both cases the similarity of items and users is determined by the similarity of the ratings given by one users to an item. 
+
+% Short intro to hybrid methods
+
+% Utility matrix formal definition
+As was already anticipated, the fundamental component of a recommendation system is the kind of prior knowledge provided for a particular problem that enables us to make reasoning about the given information. In the case of collaborative-filtering the prior knowledge is commonly embedded in a so called \emph{utility matrix}. Given a set of users $U$ and a set of items $I$, the utility matrix can be formally represented by an \emph{utility function} $f$ that associates users $u \in U$ and items $i \in I$ to a rating $r \in R$, where $R$ is a set of valid ratings, i.e. $f: U \times I \to R$.
+
+
+\subsection{Similarity measures} \label{similatrity_measures}
+% short introduction to the similarities measures
+The concept of similarity is crucial to the system regardless of the technique we choose to provide recommendations.  
+In recent years, data mining research has taken into account the issue of selecting appropriate similarity measurement methods as another crucial and effective aspect in the quality of results. According to the literature \cite{similarity_approaches}, similarity measures depend on the problem at hand, which means that although one measure may perform well for one data structure, it might be worse with another structure. 
+
+% Jaccard similarity
+\subsubsection{Jaccard similarity}\label{similarity_measure_jaccard}
+The \emph{Jaccard similarity}, often referred to as the Jaccard index, is a well established method to measure the similarity between sets. The similarity of two given sets $A$ and $B$, can be measured as the intersection of the sets divided by the union of the sets.
+
+\begin{equation}
+\begin{aligned}
+J(A,B) = \frac{|A \cap B|}{|A \cup B|} = \frac{|A \cap B|}{|A| + |B| - |A \cap B|}
+\end{aligned}
+\end{equation}
+
+This similarity measure can be adapted to work also for binary vectors, in fact a binary vector is a common and convenient way to represent a set. Given a universe set containing all the possible elements $U=\{x_1, x_2, ..., x_n\}$, any subset $S \subseteq U$ can be represented as a n-dimensional vector $\vec{v}$ where each component of the vector is $1$ if the ith element from the universal set is present in $S$, $0$ otherwise. More formally $\forall 1 \leq i \leq n \colon x_i \in S \implies \vec{v}[i] = 1$. From this definition we can derive that the Jaccard similarity for a binary vector is the number of times in which both vectors has $1$ in the the same component, divided by the total amount of times at least one vector has $1$ in the ith component. It's clear that the Jaccard similarity for vectors makes sense only in the case of vectors made only of 0s and 1s.
+
+% Cosine similarity
+\subsubsection{Cosine similarity} \label{cosine_similarity}
+The \emph{cosine similarity} is a similarity measure between two n-dimensional vectors $\vec{a}$ and $\vec{b}$. Let's denote $a_i$ the ith component of the vector $\vec{a}$. The Cosine similarity of $\vec{a}$ and $\vec{b}$ corresponds to the angle between the two vectors.
+\begin{equation}
+\begin{aligned}
+S(\vec{a},\vec{b}) = \frac{\vec{a} \cdot \vec{b}}{\lVert\vec{a}\lVert \lVert \vec{b} \lVert} = \frac{\sum_{i=1}^n{a_i b_i}}{\sqrt{\sum_{i=1}^n{a_i^2}} \sqrt{\sum_{i=1}^n{b_i^2}}}
+\end{aligned}
+\end{equation}
+
+This similarity measure is defined for vectors of any form, unlike the Jaccard similarity, which is defined on sets and consequently on binary vectors. 
+
+% Intro to Fast similarity search and LSH
+\subsection{Fast similarities search}
+Finding similarities between objects is a fundamental problem in many fields; we may need to use these similarities for clustering, for instance, to locate plagiarism\cite{plagiarism_detection} and to identify almost identical web pages \cite{duplicate_web_pages}, as well as recommendation systems, to recommend items based on previous interests. The majority of current research in this area relies on approximate algorithms and in particular when dealing with enormous amounts of data, as in the case of data mining, these algorithms are essential. This paper explores at first an approach improve similarity search in the context of recommendation systems, focusing on the use of the \emph{locality-sensitive hashing}(LSH) technique in conjunction with two locality-sensitive functions suitable for the Jaccard similarity and the Cosine similarity, respectively: \emph{minHash}\cite{minhash} and \emph{simHash}\cite{google_simhash}. In a further stage, this paper investigates how to create a hybrid recommendation system by combining content-based and collaborative filtering methodologies. 

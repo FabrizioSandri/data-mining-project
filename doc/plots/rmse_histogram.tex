@@ -1,0 +1,35 @@
+
+\begin{figure}[h]        
+    \begin{tikzpicture}
+        \begin{axis}[
+            enlargelimits=0.15,
+            x tick label style={
+            /pgf/number format/1000 sep=},
+            ylabel={\small{RMSE}},
+            width = 0.5*\textwidth, 
+            height = 6cm,
+            legend pos=north west,
+            symbolic x coords={CF + LSH(MinHash), CF + LSH(SimHash), Hybrid, Random},
+            xtick=data,
+            tick label style={font=\scriptsize},
+            ybar,
+            bar width = .6cm,
+            grid = both,
+            minor tick num = 1,
+            major grid style = {lightgray},
+            minor grid style = {lightgray!25},
+            legend cell align = {left},
+            legend pos = north west
+        ]
+        
+        \addplot coordinates {(CF + LSH(MinHash),25.390739) (CF + LSH(SimHash),25.575141) (Hybrid,19.596540) (Random,41.166241)};
+        \addplot coordinates {(CF + LSH(MinHash),25.248578) (CF + LSH(SimHash),25.365404) (Hybrid,18.864845) (Random,41.073583)};
+        
+        \legend{Synthetic,Real}
+        \end{axis}
+    \end{tikzpicture}
+    
+    \caption{\normalfont Average RMSE of the different algorithms on the two datasets.}
+    \label{fig:rmse_histo}
+\end{figure}
+

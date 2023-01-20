@@ -1,0 +1,44 @@
+
+\begin{figure}[h]        
+        
+    \begin{tikzpicture}
+    \begin{axis}[
+        xlabel=Number of users,
+        ylabel=Time (seconds),
+        ymax = 50,
+        height=6cm,
+        width = 0.5*\textwidth,
+        grid = both,
+        minor tick num = 1,
+        major grid style = {lightgray},
+        minor grid style = {lightgray!25},
+        legend cell align = {left},
+        legend pos = north west
+    ]
+    
+    % Add values and attributes for the first plot
+    \addplot[color=red,mark=*] coordinates {
+    	(100, 26)
+    	(200, 28)
+    	(300, 29)
+    	(400, 30)
+    	(500, 32)
+    };
+    
+    % Add values and attributes for the second plot
+    \addplot[color=blue,mark=*] coordinates {
+    	(100, 1)
+    	(200, 2)
+    	(300, 2)
+    	(400, 2)
+    	(500, 2)
+    };
+    
+    \legend{Baseline solution Cosine similarity,LSH with SimHash}
+    \end{axis}
+    \end{tikzpicture}
+    
+    
+    \caption{\normalfont Time performance of the Naive algorithm compared with LSH using SimHash – Variable number of users}
+    \label{fig:lsh_simhash_queries}
+\end{figure}

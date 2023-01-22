@@ -167,8 +167,8 @@ def getQueriesClusters(relational_table, query_set):
 
 if __name__=='__main__':
 
-  query_set = pd.read_csv("Dataset/dataFolder/query_set.csv", index_col=0, header=None)
-  relational_table = pd.read_csv("Dataset/dataFolder/relational_table.csv")
+  query_set = pd.read_csv("data/synthetic/query_set.csv", index_col=0, header=None)
+  relational_table = pd.read_csv("data/synthetic/relational_table.csv")
   relational_table = relational_table.convert_dtypes()
 
   # clusters = getQueriesClusters(relational_table, query_set) 

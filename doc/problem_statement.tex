@@ -43,12 +43,9 @@ In this section, the problem is formally defined after a few fundamental concept
 \end{definition}
 
 
-%% TODO: formalize the definition of recommendation system
-
-
 
 %% Formal definition of the problem
-\begin{definition}[Problem statement]
+\begin{definition}[Problem statement - Part A]
     Given the following inputs
     \begin{itemize}
         \item a relational table $R$ defined on a set of possible domains
@@ -69,12 +66,12 @@ In this section, the problem is formally defined after a few fundamental concept
         \item the utility matrix $M$, filled with all the missing ratings
         \item a generic query $q$, defined as a conjunction of conditions as shown in Definition \ref{def:query} 
     \end{itemize}
-    compute the importance of the query $q$ according to how important the query is to the individual users, by taking into account the ratings each user has already given to other queries, as specified by the utility matrix $M$.
+    compute the importance of the given query $q$ according to how important the query is to the individual users, by taking into account the ratings each user has already given to other queries, as specified by the utility matrix $M$.
 \end{definition}
 
 
 %% General idea
-The general idea is to build a sophisticated query recommendation system to be integrated in a DBMS in order to take advantage of similarities in user ratings to recommend queries to other users based on the aforementioned inputs. Figure \ref{fig:workflow} accurately depicts the workflow of the recommendation system, which involves a user sending a query to a database through a DBMS, which then retrieves some data from it. Once the user receives the query result, he chooses to provide a rating. Based on those ratings, the recommendation system gives back to the user some recommendations.
+The general idea is to build a sophisticated query recommendation system to be integrated in a DBMS in order to take advantage of similarities in user ratings to recommend queries to other users based on the aforementioned inputs. Figure \ref{fig:workflow} accurately depicts the workflow of the recommendation system, which involves a user sending a query to a database through the DBMS, which then retrieves some data from it. Once the user receives the query result, he chooses to provide a rating. Based on those ratings, the recommendation system gives back to the user some recommendations.
 
 
 \begin{figure}[h]

@@ -70,7 +70,7 @@ The idea of MinHash is to generate a signature matrix $\delta$ by taking a numbe
     $\pi=$
     \begin{tabular}{|l|l|l|}
     \hline
-        \textbf{$\pi_1$} & \textbf{$\pi_2$} \\ \hline
+        \textbf{$\boldsymbol \pi_1$} & \textbf{$\boldsymbol \pi_2$} \\ \hline
         4 & 6 \\ \hline
         3 & 3 \\ \hline
         6 & 4 \\ \hline
@@ -84,7 +84,7 @@ The idea of MinHash is to generate a signature matrix $\delta$ by taking a numbe
     $U=$
     \begin{tabular}{|l|l|l|}
     \hline
-        \textbf{$i_1$} & \textbf{$i_2$} & \textbf{$i_3$} \\ \hline
+        \textbf{$\boldsymbol i_1$} & \textbf{$\boldsymbol i_2$} & \textbf{$\boldsymbol i_3$} \\ \hline
         1 & 1 & 1 \\ \hline
         0 & 1 & 1 \\ \hline
         1 & 0 & 0 \\ \hline
@@ -98,7 +98,7 @@ The idea of MinHash is to generate a signature matrix $\delta$ by taking a numbe
     $\delta = $
     \begin{tabular}{|l|l|l|}
     \hline
-        \textbf{$i_1$} & \textbf{$i_2$} & \textbf{$i_3$} \\ \hline
+        \textbf{$\boldsymbol i_1$} & \textbf{$\boldsymbol i_2$} & \textbf{$\boldsymbol i_3$} \\ \hline
         4 & 1 & 1 \\ \hline
         1 & 3 & 2 \\ \hline
     \end{tabular}
@@ -131,7 +131,7 @@ where $a$, $b$ and $c$ are random value less than the number or users in the uti
     $U=$
     \begin{tabular}{|l|l|l|}
     \hline
-        \textbf{$q_1$} & \textbf{$q_2$} & \textbf{$q_3$} \\ \hline
+        \textbf{$\boldsymbol q_1$} & \textbf{$\boldsymbol q_2$} & \textbf{$\boldsymbol q_3$} \\ \hline
         80 & 5 & 12 \\ \hline
         0 & 67 & 0 \\ \hline
         46 & 85 & 0 \\ \hline
@@ -144,7 +144,7 @@ where $a$, $b$ and $c$ are random value less than the number or users in the uti
     $\widehat{U}=$
     \begin{tabular}{|l|l|l|}
     \hline
-        \textbf{$q_1$} & \textbf{$q_2$} & \textbf{$q_3$} \\ \hline
+        \textbf{$\boldsymbol q_1$} & \textbf{$\boldsymbol q_2$} & \textbf{$\boldsymbol q_3$} \\ \hline
         1 & 0 & 0 \\ \hline
         0 & 1 & 0 \\ \hline
         0 & 1 & 0 \\ \hline
@@ -166,7 +166,7 @@ The computation of the modified version of the utility matrix in practice is com
 
 The resulting signature matrix is a good approximation for a modified version of the Jaccard similarity measure in order to take into account positive ratings as $1$ if they are greater than a threshold $T$ and $0$ the elements that are smaller than $T$. 
 
-An implementation of this idea in pseudocode is shown in Algorithm \ref{minhash_alg}. The idea is to iterate over all queries and $H$ permutations of the utility matrix rows to discover the first row in the permuted order of the utility matrix that has a rating higher than the threshold $T$. In most cases, the loop of line 4 requires less iterations then the toal number of users $|S|$ in the utility matrix.
+An implementation of this idea in pseudocode is shown in Algorithm \ref{minhash_alg}. The idea is to iterate over all queries and $H$ permutations of the utility matrix rows to discover the first row in the permuted order of the utility matrix that has a rating higher than the threshold $T$. In most cases, the loop of line 4 requires less iterations then the total number of users $|S|$ in the utility matrix.
 The index $i$ is used as an input to create the permuted index $u$, increasing by one with each iteration until it reaches a maximum value of $|S|$. 
 
 \begin{algorithm}[h]
@@ -194,7 +194,6 @@ Once the signature matrix has been generated according to the modified version o
 The number of bands $b$ and the number of rows for each band $r$ play a crucial role in the amount of candidate pairs found for each query. In fact these two parameter are directly related one with the other i.e. recalling that $H$ is the number of permutation, namely the number of rows of the signature matrix $\delta$ then it holds that $b \cdot r = H$. Given this connection, it follows that the number of candidate pairs that LSH will find will increase if there are many bands and, as a result, few rows per band. On the other hand, if there are few bands and a large number of rows per band, LSH will locate fewer items that are similar to each other. A good trade-off must be chosen for the parameter $b$ defining the number of bands or equivalently for the parameter $r$ defining the number of rows for each band: the size of the signature matrix and the distribution of the data in the original utility matrix are two important criteria that must be taken into consideration while choosing these parameters; in the latter scenario, it is possible that all of the queries are extremely dissimilar from each other, which means that even a small value of $r$ is able to capture a significant number of candidate pairs. In the opposite scenario, it's possible that every query is incredibly similar to each other query, indicating that a low value of $r$ is insufficient and that the number of rows per band should be increased to prevent an excessive number of similar items from going against the goal of finding a good compromise on the number of similar items. 
 
 
-%%%%% TODO algorithm for finding similar items from candidate pairs
 
 \subsubsection{Making recommendations} \label{making_rec}
 The final step is to provide recommendations using the item-item collaborative filtering method, similar to the one used in the Naive solution, with the exception that in this case, the iterative process that identifies the queries with the highest degree of similarity only iterates on the candidate pairs of a given query rather than on all possible queries. Considering time complexity, in the worst scenario the number of candidate pairs identified for each query is equal to the set of all the queries, leading the algorithm to fall back on the naive method. However this is just a limit case, in fact the number of candidate pairs can be reduced by appropriately adjusting the number of bands $b$ and the number of permutations $H$. 
@@ -213,6 +212,8 @@ This algorithm's general structure is quite similar to the one discussed for the
 \begin{figure}[h]
 \begin{tikzpicture}[line cap=round,line join=round,>=triangle 45,x=1cm,y=1cm]
 \begin{axis}[
+    width=0.45*\textwidth,
+    height=6.5cm,
     axis lines=middle,
     xmin=-10,
     xmax=10,
@@ -260,11 +261,13 @@ where the $\sign$ function returns a value of $1$ if the argument that it takes 
 \label{sign_func}
 \end{equation}
 
-\paragraph{Example} Consider the example depicted in Figure \ref{fig:projection} of a generic hyperplane $H_1$ represented by its orthogonal vector $\vec{h_1} \in \mathbb{R}^2$ and two queries $\vec{q_1},\vec{q_2} \in \mathbb{R}^2$, characterized by the ratings given by two users. The position of the queries with respect to the hyperplane is determined by projecting $\vec{q_1}$ and $\vec{q_2}$ onto $\vec{h_1}$ and checking the sign, i.e. computing the sign of the dot product between the two vectors. In this specific instance, both queries are found to be on the positive side of the hyperplane $H_1$, therefore the corresponding cell in the signature matrix is filled with a value of $1$. Following the notation of signature matrix cell $\delta_{ij}$, defining the ith row(the ith hyperplane) and the jth column(the jth query) of the signature matrix, the signature for the first plane $H_1$ and the aforementioned queries is filled with $\delta_{11} \gets 1$ and $\delta_{12} \gets 1$.
+\paragraph{Example} Consider the example depicted in Figure \ref{fig:projection} of a generic hyperplane $H_1$ represented by its orthogonal vector $\vec{h_1} \in \mathbb{R}^2$ and two queries $\vec{q_1},\vec{q_2} \in \mathbb{R}^2$, characterized by the ratings given by two users. The position of the queries with respect to the hyperplane is determined by projecting $\vec{q_1}$ and $\vec{q_2}$ onto $\vec{h_1}$ and checking the sign, i.e. computing the sign of the dot product between the two vectors. In this specific instance, both queries are found to be on the positive side of the hyperplane $H_1$, therefore the corresponding cell in the signature matrix is filled with a value of $1$. Following the notation of signature matrix cell $\delta_{ij}$, defining the $ith$ row(the $ith$ hyperplane) and the $jth$ column(the $jth$ query) of the signature matrix, the signature for the first plane $H_1$ and the aforementioned queries is filled with $\delta_{11} \gets 1$ and $\delta_{12} \gets 1$.
 
 \begin{figure}[h]
 \begin{tikzpicture}[line cap=round,line join=round,>=triangle 45,x=1cm,y=1cm]
 \begin{axis}[
+    width=0.45*\textwidth,
+    height=6.5cm,
     axis lines=middle,
     xmin=-42,
     xmax=45,
@@ -363,7 +366,7 @@ The initial utility matrix $U$ is shown on the left in the example of Figure \re
     \label{simhash_alg}
 \end{algorithm}
 
-\subsubsection{Making recommendations} Similar to the approach with MinHash, the next step is to leverage the signature matrix's information to find local similarities between queries using the Locality Sensitive Hashing technique outlined in Section \ref{lsh_description}. Given that not all candidate pairs correspond to similar queries, the candidate pairs need to be manually checked for similarity. According to the item-item collaborative filtering approach discussed in Section \ref{making_rec}, similar queries can be used to generate recommendations. The idea is to predict the rating of users $i$ to query $j$, which corresponds to $U_{ij}$ in the utility matrix, as the average of the ratings given by user $i$ for the K queries that are most similar to query $j$. The complete architecture is shown in the diagram of Figure \ref{fig:cf_lsh}.
+\subsubsection{Making recommendations} Similar to the approach with MinHash, the next step is to leverage the signature matrix's information to find local similarities between queries using the Locality Sensitive Hashing technique outlined in Section \ref{lsh_description}. Given that not all candidate pairs correspond to similar queries, the candidate pairs need to be manually checked for similarity. According to the item-item collaborative filtering approach discussed in Section \ref{making_rec}, similar queries can be used to generate recommendations. The idea is to predict the rating of users $i$ to query $j$, which corresponds to $U_{ij}$ in the utility matrix, as the average of the ratings given by user $i$ for the $K$ queries that are most similar to query $j$. The complete architecture is shown in the diagram of Figure \ref{fig:cf_lsh}.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.43\textwidth]{imgs/cf_lsh_diagram.pdf}
@@ -377,9 +380,9 @@ Consequently, the idea is to combine the algorithm considered in the previous se
 
 \subsubsection{Item and user profiles} Content-based recommendation systems look through item properties to find items that a specific user may be particularly interested in. This kind of recommendation system works on the principle of creating user and item profiles, one for each system user and one for each item, respectively. The principle is that after the profiles are created, it should be easy to calculate how much a user could appreciate an item: compare the user profile to that of the item, and if a high similarity is found, it is probable that the user would appreciate that item. 
 
-\paragraph{Query profiles} An item profile should describe the important features of an item, for example in the case of movies, it might be the actors that are part of the movie. According to the same logic, the characteristics of a query, as previously noted, can be represented by its conditions or by the set of tuples it returns. In the instance examined in this work, the decision fell to take into account item profiles (referred ti \emph{query profiles} throughout this paper) as the tuples returned by each query. The query profile for a generic query $j$, denoted as $IP_j$, is represented as vector with the same number of components as the total number of rows of the relational table. The ith component of $IP_j$ is set $1$ if the query $j$ returned the ith row of the relational table, otherwise $0$. For example the query profile of a generic query $j$ that returns only the first and the third row of a relational table with 5 rows can be represented as $IP_j = [1,0,1,0,0]$. 
+\paragraph{Query profiles} An item profile should describe the important features of an item, for example in the case of movies, it might be the actors that are part of the movie. According to the same logic, the characteristics of a query, as previously noted, can be represented by its conditions or by the set of tuples it returns. In the instance examined in this work, the decision fell to take into account item profiles (referred to \emph{query profiles} throughout this paper) as the tuples returned by each query. The query profile for a generic query $j$, denoted as $IP_j$, is represented as vector with the same number of components as the total number of rows of the relational table. The $ith$ component of $IP_j$ is set $1$ if the query $j$ returned the $ith$ row of the relational table, otherwise $0$. For example the query profile of a generic query $j$ that returns only the first and the third row of a relational table with 5 rows can be represented as $IP_j = [1,0,1,0,0]$. 
 
-\paragraph{User profiles} User profiles describe the user preference to the features of items profiles, for this reason to compare user profiles with query profiles, user profiles must have the same number of components of item profiles. Since each component of the user profile correspond to a row of the relational table, the issue becomes evident: In the utility matrix, the user's preferences are expressed on queries rather than the rows that the queries return, so it's not clear how to express the user preference of a single row. To solve this problem the solution is to find the rows returned by each query(simulating a DBMS) and then compute the preference of user $t$ to the ith row of the relational table as the average rating given by user $t$ to all the queries returning the ith row of the relational table. Throughout the article, the user profile for user $t$ is referred to as $UP_t$. 
+\paragraph{User profiles} User profiles describe the user preference to the features of items profiles, for this reason to compare user profiles with query profiles, user profiles must have the same number of components of item profiles. Since each component of the user profile correspond to a row of the relational table, the issue becomes evident: In the utility matrix, the user's preferences are expressed on queries rather than the rows that the queries return, so it's not clear how to express the user preference of a single row. To solve this problem the solution is to find the rows returned by each query(simulating a DBMS) and then compute the preference of user $t$ to the $ith$ row of the relational table as the average rating given by user $t$ to all the queries returning the $ith$ row of the relational table. Throughout the article, the user profile for user $t$ is referred to as $UP_t$. 
 
 
 \subsubsection{Hybrid recommendation system} 
@@ -419,7 +422,7 @@ For the purposes of this research, the \emph{importance} of a query has been def
 There are numerous approaches to finding a simple importance metric that could guarantee a precise enough measurement, but most of the time these approaches only use information from the relational table without considering the user's ratings, which is not enough when the objective is to deliver a sophisticated method that accurately measures the importance. The solution proposed in this section takes into account both the preferences of the users, expressed in terms of the utility matrix, and the factual utility of a query obtained by the rows that it returns from the relational table. Consequently, the suggested algorithm is divided into a preprocessing phase followed by two important steps: the first step computes the importance of a query based on the user ratings provided in the utility matrix, whereas the second one leverages the rows returned by the query, i.e. the result of a query.
 
 \subsubsection{Preprocessing}
-This early phase runs the query through the DBMS and produces results that allow some queries that could initially be considered as unimportant to be excluded from the subsequent phases. The idea is that queries returning all of the rows from the relational table $R$ or queries returning nothing at all should be treated as unimportant, and the algorithm should therefore assign them a low relevance rating, let's say $0\%$. This task usually takes very little time and is trivial because a query's outputs serve as its primary measure. 
+This early phase runs the query through the DBMS and produces results that allow some queries that could initially be considered as unimportant to be excluded from the subsequent phases. The idea is that queries returning all of the rows from the relational table $R$ or queries returning nothing at all should be treated as unimportant, and the algorithm should therefore assign them a low relevance rating, let's say $0\%$. This task usually takes very little time and is crucial because a query's outputs serve as its primary measure. 
 This step is useful as generally a user would judge a query as a good one if it returns at least some outcomes, but not all the results. If the query is not labelled as unimportant in this preprocessing phase, the algorithm moves on with the next step.
 \begin{algorithm}[h]
     \caption{Preprocessing} 
@@ -441,11 +444,6 @@ This step takes into consideration users' preferences provided by the utility ma
 
 \paragraph{Example} Consider a feature \emph{city} which appears in only two queries of the query set, namely $q_1$ and $q_2$; suppose that according to the utility matrix the average ratings of query $q_1$ and $q_2$ are respectively $70$ and $90$. The average grade to the \emph{city} feature is computed as the average of $70$ and $90$, that is $80$.
 
-
-%%% TODO: penso non sia necessario usare la CDF nel primo step. Altrimenti si vanno a penalizzare troppo features che non appaiono tante volte 
-%%% ANSWER: Per me ci stava perchè l'esempio che avevo messo nel DOC capitava, però di per se ci sono altre penalizzazioni che agiscono quindi si può tralasciare!
-
-% To conclude the feature rating process, it is important to penalize features that were used and graded a few times. To do so, each feature’s score is multiply by a weight given form the cumulative distribution function (CDF) of the number of observations of a feature in the query set
 
 \vspace{1em}
 Once all the feature ratings are retrieved, the partial query importance(result of this first part) is computed as the average of its features' importance. To get this outcome the idea is to use the Geometric Mean\cite{geometric_mean} as the average measure of importance. The choice to use the Geometric Mean is driven by the necessity to give more emphasis to low rated features rather than highly rated features: given that a query is defined as a conjunction of condition, all the conditions must be satisfied in order for the query to return a specific row, thus even a negative grade on a single feature probably means that the entire query is not useful at all. 
@@ -506,8 +504,7 @@ There are many ways to weight an outcome based on the amount of conditions and p
   I_b =  \frac{|q|}{\omega} \cdot I_b 
 \end{equation}
 
-For the aforementioned reason, the most proper way is instead to use a weight that correspond to the cumulative distribution function (CDF) of the exponential distribution, evaluated on the number of conditions of the query $q$. The CDF of the exponential distribution is characterized by a rate parameter $\alpha$ which describes the increase rate of the CDF function, i.e. a small value of $\alpha$ implies a slow asymptotic convergence of the function to the value of $1$.
-
+For the aforementioned reason, the most proper way is instead to use a weight that correspond to the cumulative distribution function ($CDF$) of the exponential distribution, evaluated on the number of conditions of the query $q$. The $CDF$ of the exponential distribution is characterized by a rate parameter $\lambda$ which describes the increase rate of the $CDF$ function, i.e. a small value of $\lambda$ implies a slow asymptotic convergence of the function to the value of $1$.
 
 \begin{equation}\label{eq:CDF_w}
     I_b = \left( 1 - e^{-\lambda \cdot \lvert q \lvert} \right) \cdot I_b 
@@ -522,10 +519,10 @@ The Algorithm \ref{alg:PartB_Step2} illustrates the pseudocode defining the proc
         \ForAll{$c_i$ in $q$}   \Comment{Importance of each condition $c_i$ of q}
             \State $rows \gets exequteQuery(c_i)$
             \State $frac \gets \frac{|rows|}{|R|}$
-            \If{$frac \geq 20$}
+            \If{$frac \geq 0.2$}
                \State $itemScore \gets 100$
             \Else
-                \State $itemScore \gets 5 \cdot frac$
+                \State $itemScore \gets 500 \cdot frac$ \Comment{ Note that here $frac < 0.2$}
             \EndIf
         \EndFor
         \State $I_b \gets GeoMean(itemScore)$

@@ -3,10 +3,10 @@
 The work that has been conducted so far in the field of recommendation systems has been focused on finding ways to exploit similarities in existing data to make recommendations. This prior knowledge can take on a variety of shapes; one well-known form is provided in terms of a utility matrix. It can also be obtained from other sources of information that draw on patterns that exploits similarities, such as user behaviours \cite{user_behaviour_rec}. 
 
 
-Depending on the kind of prior knowledge we have regarding the problem that is being attempted to solve, there are primarily two categories in which recommendation systems can be categorized; these methods are \emph{content-based filtering} and \emph{collaborative-filtering}. In addition to these two methods in the last few years emerged the necessity to combine the benefits of the two aforementioned methods into \emph{hybrid recommendation systems}.
+Depending on the kind of prior knowledge the system has regarding the problem that is being attempted to solve, there are primarily two categories in which recommendation systems can be categorized; these methods are \emph{content-based filtering} and \emph{collaborative-filtering}. In addition to these two methods in the last few years emerged the necessity to combine the benefits of the two aforementioned methods into \emph{hybrid recommendation systems}.
 
 % intro to content based
-Content-based methods use a combination of the features associated with each product and the ratings given by each user to provide suggestions. This method requires the construction of user profiles that outline each user's preferences as well as item profiles that highlight a product's key features. 
+Content-based methods use a combination of the features associated with each product and the ratings given by each user to provide suggestions. This method requires the construction of user profiles that outline each user's preferences as well as item profiles that highlight an item's key features. 
 
 % Intro to collaborative filtering
 The collaborative-filtering method pushes the system to only consider the relationships between users and items, ignoring either the features of users or the characteristics of items: with this approach, the utility matrix's relationships are the sole thing being considered. It is possible to create collaborative-filtering recommendation systems by either locating similar items that may be of interest based on the user's past interests, this is called \emph{item-item collaborative filtering}, or by utilizing user similarities to recommend products that another user has rated highly, this is \emph{user-user collaborative filtering}; in both cases the similarity of items and users is determined by the similarity of the ratings given by one users to an item. 
@@ -20,8 +20,7 @@ As was already anticipated, the fundamental component of a recommendation system
 
 \subsection{Similarity measures} \label{similatrity_measures}
 % short introduction to the similarities measures
-The concept of similarity is crucial to the system regardless of the technique we choose to provide recommendations.  
-In recent years, data mining research has taken into account the issue of selecting appropriate similarity measurement methods as another crucial and effective aspect in the quality of results. According to the literature \cite{similarity_approaches}, similarity measures depend on the problem at hand, which means that although one measure may perform well for one data structure, it might be worse with another structure. 
+The concept of similarity is crucial to the system regardless of the technique chosen to provide recommendations.  In recent years, data mining research has taken into account the issue of selecting appropriate similarity measurement methods as another crucial and effective aspect in the quality of results. According to the literature \cite{similarity_approaches}, similarity measures depend on the problem at hand, which means that although one measure may perform well for one data structure, it might be worse with another structure. 
 
 % Jaccard similarity
 \subsubsection{Jaccard similarity}\label{similarity_measure_jaccard}

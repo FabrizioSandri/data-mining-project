@@ -1,4 +1,5 @@
 # Data mining project 2022/2023
+[[Paper]](/report.pdf)
 
 This repository contains all the material for the Data Mining Course project.
 The course was held at the University of Trento by prof. Yannis Velegrakis. This
